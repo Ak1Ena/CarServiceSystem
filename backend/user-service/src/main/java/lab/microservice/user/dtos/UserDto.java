@@ -1,5 +1,6 @@
 package lab.microservice.user.dtos;
 import lab.microservice.user.entity.User;
+import lab.microservice.user.entity.User.UserRole;
 
 import java.time.LocalDateTime;
 
@@ -23,14 +24,16 @@ public class UserDto {
     private User.UserStatus status;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private User.UserRole role;
     
     // Constructors
     public UserDto() {}
     
-    public UserDto(String name, String email, String phone) {
+    public UserDto(String name, String email, String phone,UserRole role) {
         this.name = name;
         this.email = email;
         this.phone = phone;
+        this.role = role;
     }
     
     // Convert from Entity to DTO
@@ -47,6 +50,7 @@ public class UserDto {
         dto.setStatus(user.getStatus());
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
+        dto.setUserRole(user.getUserRole());
         // ไม่ include password ใน DTO
         return dto;
     }
@@ -64,6 +68,7 @@ public class UserDto {
         if (this.status != null) {
             user.setStatus(this.status);
         }
+        user.setUserRole(this.role);
         return user;
     }
     
@@ -134,4 +139,6 @@ public class UserDto {
     
     public String getPhoneNumber() { return phone; }
     public void setPhoneNumber(String phoneNumber) { this.phone = phoneNumber; }
+    public UserRole getUserRole(){return role;}
+    public void setUserRole(UserRole role){this.role = role;}
 }

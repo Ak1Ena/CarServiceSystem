@@ -25,48 +25,44 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userId; // เปลี่ยนจาก id เป็น userId
-
     @Column(nullable = false)
     private String name; // เปลี่ยนจาก firstName, lastName เป็น name
-
     @Column(nullable = false, unique = true)
     private String email;
-
     @Column(nullable = false, unique = true)
     private String phone; // เปลี่ยนจาก phoneNumber เป็น phone
     @Column(nullable = false)
     private String password;
-
     private String address;
-
     // เพิ่ม username field
     @Column(unique = true, nullable = false)
     private String username;
-
     // เพิ่ม status enum
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserStatus status = UserStatus.ACTIVE;
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-   
+    @Column(name = "role")
+    private UserRole userRole;
+
 
     // Constructors
     public User() {
     }
 
-    public User(String username, String email, String name, String phone) {
+
+    public User(String username, String email, String name, String phone, UserRole role) {
         this.username = username;
         this.email = email;
         this.name = name;
         this.phone = phone;
+        this.userRole = role;
     }
 
     // Getters and Setters - ปรับให้ตรงกับโค้ดเดิม
@@ -191,8 +187,19 @@ public class User {
         this.phone = phoneNumber;
     }
 
+    public void setUserRole(UserRole userRole){
+        this.userRole = userRole;
+    }
+    public UserRole getUserRole(){
+        return userRole;
+    }
+
     // User Status Enum
     public enum UserStatus {
         ACTIVE, INACTIVE, SUSPENDED
+    }
+
+    public enum UserRole{
+        USER,OWNER
     }
 }
