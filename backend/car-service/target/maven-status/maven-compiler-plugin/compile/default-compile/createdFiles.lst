@@ -1,0 +1,7 @@
+lab\microservice\car\Dtos\CarDto.class
+lab\microservice\car\Fegien\UserClient.class
+lab\microservice\car\CarServiceApplication.class
+lab\microservice\car\Controller\CarController.class
+lab\microservice\car\Kafka\KafkaConfig.class
+lab\microservice\car\Entity\Car.class
+lab\microservice\car\Repository\CarRepository.class

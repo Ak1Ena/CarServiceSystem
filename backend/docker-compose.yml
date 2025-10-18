@@ -1,0 +1,174 @@
+version: '3.8'
+
+services:
+    zookeeper:
+      build: ./zookeeper
+      container_name: zookeeper
+      networks:
+        - microservices-network
+      ports:
+        - "2181:2181"
+      environment:
+        ZOOKEEPER_CLIENT_PORT: 2181
+        ZOOKEEPER_TICK_TIME: 2000
+        ZOOKEEPER_SYNC_LIMIT: 2
+        ZOOKEEPER_4LW_COMMANDS_WHITELIST: "*"
+      healthcheck:
+        test: [ "CMD-SHELL", "nc -z localhost 2181 || exit 1" ]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+        start_period: 60s
+
+    kafka:
+      build: ./kafka
+      container_name: kafka
+      depends_on:
+        zookeeper:
+          condition: service_healthy
+      networks:
+        - microservices-network
+      ports:
+        - "9092:9092"
+      environment:
+        KAFKA_BROKER_ID: 1
+        KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+        KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092
+        KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+        KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+        KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      healthcheck:
+        test: [ "CMD-SHELL", "kafka-broker-api-versions --bootstrap-server kafka:9092 >/dev/null 2>&1" ]
+        interval: 10s
+        timeout: 5s
+        retries: 10
+    eureka-server:
+      build: ./eureka-server
+      container_name: eureka-server
+      depends_on:
+        kafka:
+          condition: service_healthy
+      ports:
+        - "8761:8761"
+      networks:
+        - microservices-network
+      healthcheck:
+        test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8761/actuator/health || exit 1"]
+        interval: 10s
+        timeout: 3s
+        retries: 10
+        start_period: 20s
+
+
+
+
+
+    car-service:
+      build: ./car-service
+      container_name: car-service
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+        kafka:
+          condition: service_healthy
+        
+      ports:
+        - "8082:8082"
+      networks:
+        - microservices-network
+      environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+        JAVA_OPTS: "-Xms256m -Xmx512m"
+        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+        APP_KAFKA_TOPIC: car
+
+
+
+    receipt-service:
+      build: ./receipt-service
+      container_name: receipt-service
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+      ports:
+        - "8083:8083"
+      networks:
+        - microservices-network
+  #    depends_on:
+  #      eureka-server:
+  #        condition: service_healthy
+      environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+        JAVA_OPTS: "-Xms256m -Xmx512m"
+        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+        APP_KAFKA_TOPIC: receipt
+
+    reserve-service:
+      build: ./reserve-service
+      container_name: reserve-service
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+      ports:
+        - "8084:8084"
+      networks:
+        - microservices-network
+      #    depends_on:
+      #      eureka-server:
+      #        condition: service_healthy
+      #      receipt-service:
+      #        condition: service_healthy
+      environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+        JAVA_OPTS: "-Xms256m -Xmx512m"
+        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+        APP_KAFKA_TOPIC: reservation
+    user-service:
+      build: ./user-service
+      container_name: user-service
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+      ports:
+        - "8085:8085"
+      networks:
+        - microservices-network
+      #    depends_on:
+      #      eureka-server:
+      #        condition: service_healthy
+      #      receipt-service:
+      #        condition: service_healthy
+      environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+        JAVA_OPTS: "-Xms256m -Xmx512m"
+        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+        APP_KAFKA_TOPIC: user
+      
+    payment-service:
+      build: ./payment-service
+      container_name: payment-service
+      depends_on:
+        eureka-server:
+          condition: service_healthy
+      ports:
+        - "8086:8086"
+      networks:
+        - microservices-network
+      #    depends_on:
+      #      eureka-server:
+      #        condition: service_healthy
+      #      receipt-service:
+      #        condition: service_healthy
+      environment:
+        EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka
+        JAVA_OPTS: "-Xms256m -Xmx512m"
+        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+        APP_KAFKA_TOPIC: payment
+
+networks:
+  microservices-network:
+    driver: bridge
+
+volumes:
+  # H2 database data persistence (optional)
+  h2-data:
