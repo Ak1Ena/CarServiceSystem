@@ -75,7 +75,8 @@ Service นี้จัดการข้อมูลผู้ใช้ แล�
   "name": "string",
   "phone": "string",
   "password": "string",
-  "address": "string"
+  "address": "string",
+  "role":"string"
 }
 ```
 **Response Body**
@@ -89,7 +90,8 @@ Service นี้จัดการข้อมูลผู้ใช้ แล�
   "address": "string",
   "status": "ACTIVE | INACTIVE",
   "createdAt": "timestamp",
-  "updatedAt": "timestamp"
+  "updatedAt": "timestamp",
+  "role": "USER | OWNER"
 }
 ```
 
