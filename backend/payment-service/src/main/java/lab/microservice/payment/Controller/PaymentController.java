@@ -75,7 +75,7 @@ public class PaymentController {
 
     @GetMapping("/car/{paymendId}")
     public ResponseEntity<CarDto> getCarByPaymentId(@PathVariable Long paymendId){
-        Payment payment = repo.getById(paymendId);
+        Payment payment = repo.findByPaymentId(paymendId);
         CarDto car = carClient.getCarsByUserId(payment.getUserId());
         return ResponseEntity.ok(car);
     }
@@ -90,7 +90,7 @@ public class PaymentController {
     //getByUserId
     @GetMapping("user/{userId}")
     public List<PaymentDto> getByUser(@PathVariable Long userId) {
-        return repo.findByuserId(userId)
+        return repo.findByUserId(userId)
                    .stream().map(this::convertToDto).collect(Collectors.toList());
     }
 

@@ -45,7 +45,7 @@ public class PaymentListener {
 		JsonNode node = mapper.readTree(record.value());
 		if ("receipt-updated".equalsIgnoreCase(node.get("event").asText())) {
 			Long receiptId = node.get("receiptId").asLong();
-			List<Payment> payment = paymentRepository.findByreceiptId(receiptId);
+			List<Payment> payment = paymentRepository.findByReceiptId(receiptId);
 			paymentRepository.deleteAll(payment);
 			log.info("Delete all payments of receiptId " + receiptId + " complete.");
 		}
