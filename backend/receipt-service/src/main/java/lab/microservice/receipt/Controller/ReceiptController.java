@@ -36,6 +36,7 @@ import lab.microservice.receipt.Dtos.ReceiptItemDto;
 import lab.microservice.receipt.Entity.Receipt;
 import lab.microservice.receipt.Entity.Receipt.PaymentStatus;
 import lab.microservice.receipt.Entity.ReceiptItem;
+import lab.microservice.receipt.FeignClient.PaymentClient;
 import lab.microservice.receipt.FeignClient.UserFeignClient;
 import lab.microservice.receipt.Repository.ReceiptRepository;
 
@@ -48,16 +49,23 @@ public class ReceiptController {
     private ReceiptRepository repo;
     private final KafkaTemplate<String, String> kafka;
     private final UserFeignClient userClient;
+    private final PaymentClient paymentClient;
     @Value("${app.kafka.topic}")
     private String topic;
     ObjectMapper mapper = new ObjectMapper();
 
-    public ReceiptController(ReceiptRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient) {
+    public ReceiptController(ReceiptRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient, PaymentClient paymentClient) {
         this.repo = repo;
         this.kafka = kafka;
         this.userClient = userClient;
+        this.paymentClient = paymentClient;
     }
-
+    @GetMapping("/payment/{receiptId}")
+    public ResponseEntity<JsonNode> getPaymentByReceipt(@PathVariable Long id){
+        Receipt receipt = repo.getById(id);
+        JsonNode payment = paymentClient.getPaymentByPaymentId(id);
+        return ResponseEntity.ok(payment);
+    }
      @GetMapping
     public ResponseEntity<List<Receipt>> getAllReceipts() {
         List<Receipt> receipts = repo.findAll();

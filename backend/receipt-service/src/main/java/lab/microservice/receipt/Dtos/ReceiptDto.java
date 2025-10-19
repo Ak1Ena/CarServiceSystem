@@ -14,6 +14,8 @@ public class ReceiptDto {
     private Long userId;
     private String userName;
     private Long reserveId;
+    private Long paymentId;
+
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
     private String issueAt;
     private List<ReceiptItemDto> items;
@@ -22,6 +24,15 @@ public class ReceiptDto {
     private BigDecimal grandTotal;
 
     private String status;
+    
+
+    public Long getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(Long paymentId) {
+        this.paymentId = paymentId;
+    }
 
     public Long getReceiptId() {
         return receiptId;

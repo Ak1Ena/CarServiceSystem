@@ -6,18 +6,24 @@ public class ReserveDto {
     private Long userId;
     private String startDate;
     private String endDate;
-
+    private Long ownerId;
     public ReserveDto() {
     }
 
-    public ReserveDto(Long id, Long carId, Long userId, String startDate, String endDate) {
+    public ReserveDto(Long id, Long carId, Long userId, String startDate, String endDate, Long ownerId) {
         this.id = id;
         this.carId = carId;
         this.userId = userId;
+        this.ownerId = ownerId;
         this.startDate = startDate;
         this.endDate = endDate;
     }
-
+    public void setOwnerId(Long ownerId){
+        this.ownerId = ownerId;
+    }
+    public Long getOwnerId(){
+        return ownerId;
+    }
     public Long getId() {
         return id;
     }

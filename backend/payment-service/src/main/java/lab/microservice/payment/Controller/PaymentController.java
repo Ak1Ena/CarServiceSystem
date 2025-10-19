@@ -29,11 +29,14 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lab.microservice.payment.Dtos.CarDto;
 import lab.microservice.payment.Dtos.PaymentDto;
 import lab.microservice.payment.Dtos.PaymentEventDto;
 import lab.microservice.payment.Entity.Payment;
 import lab.microservice.payment.Entity.PaymentMethod;
 import lab.microservice.payment.Entity.PaymentStatus;
+import lab.microservice.payment.FeignClient.CarFeignClient;
 import lab.microservice.payment.FeignClient.ReceiptFeignClient;
 import lab.microservice.payment.FeignClient.UserFeignClient;
 import lab.microservice.payment.Repository.PaymentRepository;
@@ -51,15 +54,17 @@ public class PaymentController {
     private KafkaTemplate<String, String> kafka;
     private final UserFeignClient userClient;
     private final ReceiptFeignClient receiptClient;
+    private final CarFeignClient carClient;
     ObjectMapper mapper = new ObjectMapper();
     private static final DateTimeFormatter PAID_AT_FMT =
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-    public PaymentController(PaymentRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient,ReceiptFeignClient receiptClient) {
+    public PaymentController(PaymentRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient,ReceiptFeignClient receiptClient,CarFeignClient carClient) {
         this.repo = repo;
         this.kafka = kafka;
         this.userClient = userClient;
         this.receiptClient = receiptClient;
+        this.carClient = carClient;
     }
 
     //getAll
@@ -68,6 +73,12 @@ public class PaymentController {
         return ResponseEntity.ok(repo.findAll());
     }
 
+    @GetMapping("/car/{paymendId}")
+    public ResponseEntity<CarDto> getCarByPaymentId(@PathVariable Long paymendId){
+        Payment payment = repo.getById(paymendId);
+        CarDto car = carClient.getCarsByUserId(payment.getUserId());
+        return ResponseEntity.ok(car);
+    }
     //getByPaymentId
     @GetMapping("/{paymentId}")
     public ResponseEntity<Payment> getById(@PathVariable Long paymentId) {

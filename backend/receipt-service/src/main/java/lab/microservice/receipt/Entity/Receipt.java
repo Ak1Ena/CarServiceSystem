@@ -27,7 +27,7 @@ public class Receipt {
 
     //From Reserve Service
     private Long reserveId;
-
+    private Long paymentId;
     //From Payment Service
     private String paymentMethod;
 
@@ -47,6 +47,13 @@ public class Receipt {
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private PaymentStatus status = PaymentStatus.PENDING;
+    
+    public Long getPaymentId() {
+        return paymentId;
+    }
+    public void setPaymentId(Long paymentId) {
+        this.paymentId = paymentId;
+    }
     public Long getReceiptId() {
         return receiptId;
     }

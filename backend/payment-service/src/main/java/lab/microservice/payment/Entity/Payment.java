@@ -20,12 +20,10 @@ public class Payment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long paymentId;
-
+	
 	private String username;
 	private Long userId;
-
 	private Long receiptId;
-
 	private BigDecimal grandTotal;
 
 	

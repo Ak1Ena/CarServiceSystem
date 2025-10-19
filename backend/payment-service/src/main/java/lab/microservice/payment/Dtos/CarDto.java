@@ -1,31 +1,17 @@
-package lab.microservice.car.entity;
+package lab.microservice.payment.Dtos;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
 
-//
-@Entity
-public class Car {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class CarDto {
     private Long id;
     private String model;
     private String plateNumber;
     private Long userId;
 
     private String type;
-    @Lob
     private byte[] img1;
-    @Lob
     private byte[] img2;
-    @Lob
     private byte[] img3;
-    
     private Double price;
-
     private String pickUp;
     
     public String getPickUp(){
@@ -34,12 +20,8 @@ public class Car {
     public void setPickUp(String pickUp){
         this.pickUp = pickUp;
     }
-    public Double getPrice() {
-        return price;
-    }
-
-    public void setPrice(Double price) {
-        this.price = price;
+    public Long getId() {
+        return id;
     }
 
     public String getType() {
@@ -74,9 +56,12 @@ public class Car {
         this.img3 = img3;
     }
 
+    public Double getPrice() {
+        return price;
+    }
 
-    public Long getId() {
-        return id;
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public void setId(Long id) {
@@ -106,6 +91,4 @@ public class Car {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-
-    // Getters and Setters
 }

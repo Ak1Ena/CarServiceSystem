@@ -1,26 +1,53 @@
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/HHDuFLwg)
-# Overview
 
-# Microservices API Overview
+# Car Rental Marketplace - Microservices Architecture
 
-This project contains multiple microservices managing a car reservation system.
+This project implements a car rental marketplace where car owners can list their vehicles and renters can book them. The system follows a microservices architecture pattern with service discovery, event-driven communication, and well-defined service boundaries.
 
-| Service | Port | Kafka Topic | Description |
-|---------|------|-------------|-------------|
-| Car Service | 8082 | car | Manages cars in the system. |
-| Receipt Service | 8083 | receipt | Manages receipts for transactions. |
-| Reserve Service | 8084 | reservation | Manages reservations for cars. |
-| User Service | 8085 | user | Manages user information. |
-| Payment Service | 8086 | payment | Manages payment. |
+## Architecture Overview
 
----
+```
+     +-------------------+
+     |   Frontend/UI     |
+     +--------+----------+
+              |
+     +--------v----------+
+     |  Frontend Proxy   |
+     +--------+----------+
+              |
+     +--------v----------+
+     |  Service Discovery|
+     |   (Eureka Server) |
+     +-------------------+
+              |
+     +--------v----------+
+     |       Kafka       |
+     |   (Event Stream)  |
+     +-------------------+
+              |
+     +--------+--------+--------+--------+--------+--------+
+     |        |        |        |        |        |        |
++----v--+ +---v----+ +--v-----+ +--v-----+ +--v-----+ +--v-----+
+|User   | |Car     | |Reserve | |Receipt| |Payment| |       |
+|Service| |Service | |Service | |Service | |Service | |Others |
++-------+ +-------+ +--------+ +--------+ +--------+ +-------+
+```
 
-# Car Service API
+## Service Dependencies
 
-This service manages the cars in the system.
+- **Eureka Server**: Centralized service discovery for all microservices
+- **User Service**: Manages user accounts (both renters and car owners)
+- **Car Service**: Manages car listings with owner relationships
+- **Reserve Service**: Links users to cars for rental periods
+- **Receipt Service**: Aggregates reservation, user, and car information into receipts
+- **Payment Service**: Processes payments tied to receipts, can access car info through receipt→reservation→car chain
 
-## Endpoints
+## Service Details
 
+### Car Service (Port 8082)
+Manages cars in the system and their relationship to owners.
+
+#### Endpoints
 | Method | Path | Description | Request Body | Response Body |
 |--------|------|-------------|--------------|---------------|
 | `POST` | `/cars` | Add a new car. | `CarDto` | `CarDto` |
@@ -31,8 +58,7 @@ This service manages the cars in the system.
 | `GET` | `/cars/{carId}/user` | Get a car with user information. | (none) | `JsonNode` |
 | `DELETE` | `/cars/{id}` | Delete a car. | (none) | (none) |
 
-## `CarDto` object
-
+#### `CarDto` object
 ```json
 {
   "id": "Long (generated)",
@@ -41,14 +67,13 @@ This service manages the cars in the system.
   "userId": "Long"
 }
 ```
+
 ---
 
-# User Service API
+### User Service (Port 8085)
+Manages user information and handles both renters and car owners.
 
-Service นี้จัดการข้อมูลผู้ใช้ และส่ง Kafka Event ทุกครั้งที่มีการสร้าง/แก้ไข/ลบ/เปลี่ยนสถานะ
-
-## Endpoints
-
+#### Endpoints
 | Method | Path | Description | Request Body | Response Body |
 |--------|------|-------------|--------------|---------------|
 | `POST` | `/users` | สร้างผู้ใช้ใหม่ | `UserDto` | `UserDto` |
@@ -63,10 +88,9 @@ Service นี้จัดการข้อมูลผู้ใช้ แล�
 | `PATCH` | `/users/{id}/status` | เปลี่ยนสถานะผู้ใช้ | `StatusUpdateRequest` | `UserDto` |
 | `DELETE` | `/users/{id}` | ลบผู้ใช้ | (none) | `{ "message": "...", "userId": "..." }` |
 
-## `UserDto` object
+#### `UserDto` object
 
 **Request Body (สำหรับสร้าง/แก้ไขผู้ใช้)**
-
 ```json
 {
   "id": "Long (generated)",
@@ -96,12 +120,11 @@ Service นี้จัดการข้อมูลผู้ใช้ แล�
 ```
 
 ---
-# Reserve Service API
 
-This service manages reservations for cars.
+### Reserve Service (Port 8084)
+Manages reservations that connect users to cars for specific periods.
 
-## Endpoints
-
+#### Endpoints
 | Method | Path | Description | Request Body | Response Body |
 |--------|------|-------------|--------------|---------------|
 | `POST` | `/reserves` | Create a new reservation | `ReserveDto` | `ReserveDto` |
@@ -112,8 +135,7 @@ This service manages reservations for cars.
 | `PATCH` | `/reserves/{id}` | Partially update a reservation | `ReserveDto` (partial) | `ReserveDto` |
 | `DELETE` | `/reserves/{id}` | Delete a reservation | (none) | (none) |
 
-## `ReserveDto` object
-
+#### `ReserveDto` object
 ```json
 {
   "id": "Long (generated)",
@@ -126,12 +148,10 @@ This service manages reservations for cars.
 
 ---
 
+### Receipt Service (Port 8083)
+Manages receipts for transactions, aggregating user, car, and reservation information.
 
-# Receipt Service API
-
-This service manages receipts for transactions.
-## Endpoints
-
+#### Endpoints
 | Method | Path | Description | Request Body | Response Body |
 |--------|------|-------------|--------------|---------------|
 | GET | `/receipts` | Get all receipts | (none) | `ReceiptDto`|
@@ -144,8 +164,7 @@ This service manages receipts for transactions.
 | PATCH | `/receipts/{id}` | Partially update a receipt | `ReceiptDto` (partial) |`ReceiptDto`|
 | DELETE | `/receipts/{id}` | Delete a receipt | (none) | (none)|
 
-## `ReceiptDto` object
-
+#### `ReceiptDto` object
 ```json
 {
         "receiptId": "Long (generated)",
@@ -160,8 +179,7 @@ This service manages receipts for transactions.
         "status": "String (generated)"
     }
 ```
-## `ReceiptItemDto` object
-
+#### `ReceiptItemDto` object
 ```json
 {
         "id": "Long (generated)",
@@ -170,12 +188,13 @@ This service manages receipts for transactions.
         "unitPrice": "int"
     }
 ```
+
 ---
-# Payment Service API
 
-This service manages payment for receipt.
-## Endpoints
+### Payment Service (Port 8086)
+Manages payment processing for receipts, with access to car information through service relationships.
 
+#### Endpoints
 | Method | Path | Description | Request Body | Response Body |
 |--------|------|-------------|--------------|---------------|
 | GET | `/payments` | Get all payments | (none) | `PaymentDto`|
@@ -186,8 +205,7 @@ This service manages payment for receipt.
 | PATCH | `/payments/{paymentId}/paid` | make a payment | `PaymentDto (paymentMethod)` |`PaymentDto`|
 | DELETE | `/payments/{id}` | Delete a payment | (none) | (none)|
 
-## `PaymentDto` object
-
+#### `PaymentDto` object
 ```json
 {
     "paymentId": "Long (generated)",
@@ -201,3 +219,42 @@ This service manages payment for receipt.
 }
 ```
 
+## Data Flow and Service Interactions
+
+### How Car Information Flows Through the System
+
+1. **Car Listing**: Car owners register their vehicles through the Car Service
+2. **Reservation**: Renters make reservations through the Reserve Service, connecting users to cars
+3. **Receipt Creation**: The Receipt Service creates receipts that aggregate:
+   - User information (from User Service via userId)
+   - Car information (from Car Service via reserveId→carId)
+   - Rental period and terms (from Reserve Service)
+   - Pricing details
+4. **Payment Processing**: The Payment Service processes payments based on receipts and can access car information through:
+   - Payment → Receipt (via receiptId) → Reservation (via reserveId) → Car (via carId)
+
+### Key Architecture Benefits
+
+- **Scalability**: Each service can be scaled independently based on demand
+- **Maintainability**: Clear service boundaries make it easier to update individual components
+- **Flexibility**: New features can be added as separate services
+- **Resilience**: Failure in one service doesn't necessarily bring down the entire system
+
+### Car Rental Process Flow
+
+1. Car owner registers as a user and lists their car
+2. Renter searches and finds an available car
+3. Renter creates a reservation specifying dates
+4. System generates a receipt with all details
+5. Renter processes payment through the payment service
+6. Car information is accessible at all stages for both renters and system administrators
+
+</details>
+
+## Service Communication
+
+All services communicate through:
+- HTTP/REST APIs for synchronous communication
+- Kafka for event-driven asynchronous communication
+- Eureka for service discovery and load balancing
+</details>
