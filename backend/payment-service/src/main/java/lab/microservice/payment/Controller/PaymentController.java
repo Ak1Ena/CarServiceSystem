@@ -29,6 +29,9 @@ import org.springframework.web.server.ResponseStatusException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import lab.microservice.payment.Dtos.CarDto;
 import lab.microservice.payment.Dtos.PaymentDto;
@@ -59,10 +62,10 @@ public class PaymentController {
     private final CarFeignClient carClient;
     private final ReserveClient reserveClient;
     ObjectMapper mapper = new ObjectMapper();
-    private static final DateTimeFormatter PAID_AT_FMT =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    private static final DateTimeFormatter PAID_AT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-    public PaymentController(PaymentRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient,ReceiptFeignClient receiptClient,CarFeignClient carClient, ReserveClient reserveClient) {
+    public PaymentController(PaymentRepository repo, KafkaTemplate<String, String> kafka, UserFeignClient userClient,
+            ReceiptFeignClient receiptClient, CarFeignClient carClient, ReserveClient reserveClient) {
         this.repo = repo;
         this.kafka = kafka;
         this.userClient = userClient;
@@ -71,19 +74,76 @@ public class PaymentController {
         this.reserveClient = reserveClient;
     }
 
-    //getAll
+    // getAll
     @GetMapping
     public ResponseEntity<List<Payment>> getAllPayments() {
         return ResponseEntity.ok(repo.findAll());
     }
 
-    @GetMapping("/car/{paymendId}")
-    public ResponseEntity<CarDto> getCarByPaymentId(@PathVariable Long paymendId){
-        Payment payment = repo.findByPaymentId(paymendId);
-        CarDto car = carClient.getCarsByUserId(payment.getUserId());
-        return ResponseEntity.ok(car);
+    // @GetMapping("/car/{paymendId}")
+    // public ResponseEntity<JsonNode> getCarWithRenterByPaymentId(@PathVariable
+    // Long paymendId){
+    // Payment payment = repo.findByPaymentId(paymendId);
+    // if (payment == null) {
+    // return ResponseEntity.notFound().build();
+    // }
+    // ReserveDto reserve =
+    // reserveClient.getReserveByReserveId(payment.getReserveId());
+    // CarDto carDto = carClient.getCarByCarId(reserve.getCarId());
+    // JsonNode renter = userClient.getUserById(reserve.getUserId());
+    // JsonNode carOwner = userClient.getUserById(carDto.getUserId());
+
+    // ObjectMapper mapper = new ObjectMapper();
+    // ObjectNode result = JsonNodeFactory.instance.objectNode();
+
+    // result.set("payment", mapper.valueToTree(payment));
+    // result.set("reserve", mapper.valueToTree(reserve));
+    // result.set("car", renter);
+    // result.set("carOwner", carOwner);
+    // return ResponseEntity.ok(result);
+    // }
+    // getByPaymentId
+    @GetMapping("/owner/{ownerId}")
+    public ResponseEntity<JsonNode> getPaymentDetailsForOwner(@PathVariable Long ownerId){
+        try {
+            
+       
+            List<CarDto> cars = carClient.getCarsByUserId(ownerId);
+            ObjectMapper mapper = new ObjectMapper();
+            ArrayNode res = mapper.createArrayNode();
+            for(CarDto car : cars){
+                List<ReserveDto> reserves = reserveClient.getReserveByCarId(car.getId());
+                ObjectNode carNode = mapper.createObjectNode();
+                carNode.set("car", mapper.valueToTree(car));
+                ArrayNode resercesArr = mapper.createArrayNode();
+                for(ReserveDto reserve : reserves){
+                    Payment payment = repo.findByReserveId(reserve.getId());
+                    ObjectNode reservNode = mapper.createObjectNode();
+                    reservNode.set("reserve",mapper.valueToTree(reserve));
+
+                    JsonNode renter = userClient.getUserById(reserve.getUserId());
+                    reservNode.set("renter", renter);
+
+                    if (payment != null) {
+                        reservNode.set("payment", mapper.valueToTree(payment));
+                    }else{
+                        reservNode.putNull("payment");
+                    }
+                    resercesArr.add(reservNode);
+                }
+                carNode.set("reserves",resercesArr);
+                res.add(carNode);
+            }
+            ObjectNode result = mapper.createObjectNode();
+            result.set("ownerId",mapper.valueToTree(ownerId));
+            result.set("cars", res);
+
+            return ResponseEntity.ok(result);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
-    //getByPaymentId
+
     @GetMapping("/{paymentId}")
     public ResponseEntity<Payment> getById(@PathVariable Long paymentId) {
         return repo.findById(paymentId)
@@ -91,48 +151,48 @@ public class PaymentController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    //getByUserId
+    // getByUserId
     @GetMapping("user/{userId}")
     public List<PaymentDto> getByUser(@PathVariable Long userId) {
         return repo.findByUserId(userId)
-                   .stream().map(this::convertToDto).collect(Collectors.toList());
+                .stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    //getByPaymentStatus
+    // getByPaymentStatus
     @GetMapping("/status/{status}")
     public List<PaymentDto> getByStatus(@PathVariable String status) {
         PaymentStatus ps;
-    try {
-        ps = PaymentStatus.valueOf(status.toUpperCase());
-    } catch (IllegalArgumentException e) {
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status: " + status);
-    }
-    return repo.findByStatus(ps).stream().map(this::convertToDto).collect(Collectors.toList());
+        try {
+            ps = PaymentStatus.valueOf(status.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid status: " + status);
+        }
+        return repo.findByStatus(ps).stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
-    //createPayment
+    // createPayment
     @PostMapping
     @Transactional
     public ResponseEntity<PaymentDto> createPayment(@RequestBody PaymentDto dto) {
 
-    if (dto.getReserveId() == null || dto.getUserId() == null) {
-        return ResponseEntity.badRequest().build();
-    }
+        if (dto.getReserveId() == null || dto.getUserId() == null) {
+            return ResponseEntity.badRequest().build();
+        }
 
-    if (repo.existsByReserveId(dto.getReserveId())) {
+        if (repo.existsByReserveId(dto.getReserveId())) {
             throw new DuplicatePaymentForReserveException(dto.getReserveId());
         }
 
         JsonNode userJson = userClient.getUserById(dto.getUserId());
-        String userName = (userJson != null && userJson.has("name")) 
-        ? userJson.get("name").asText() 
-        : "Unknown";
+        String userName = (userJson != null && userJson.has("name"))
+                ? userJson.get("name").asText()
+                : "Unknown";
         if (userName.equals("Unknown") || userName.isBlank()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .header("Error-Message", "User not found").build();
+                    .header("Error-Message", "User not found").build();
         }
 
-        BigDecimal amount =BigDecimal.valueOf(reserveClient.getReserveByReserveId(dto.getReserveId()).getPrice());
+        BigDecimal amount = BigDecimal.valueOf(reserveClient.getReserveByReserveId(dto.getReserveId()).getPrice());
 
         Payment payment = new Payment();
         payment.setReserveId(dto.getReserveId());
@@ -145,52 +205,55 @@ public class PaymentController {
         return ResponseEntity.ok(response);
     }
 
-    //makePayment
+    // makePayment
     @PatchMapping("/{paymentId}/paid")
     @Transactional
-    public ResponseEntity<PaymentDto> makePayment(@PathVariable("paymentId") Long paymentId,@RequestBody PaymentDto paymentmethod) throws JsonProcessingException {
+    public ResponseEntity<PaymentDto> makePayment(@PathVariable("paymentId") Long paymentId,
+            @RequestBody PaymentDto paymentmethod) throws JsonProcessingException {
 
-    Payment payment = repo.findById(paymentId).orElse(null);
-    if (payment == null) return ResponseEntity.notFound().build();
+        Payment payment = repo.findById(paymentId).orElse(null);
+        if (payment == null)
+            return ResponseEntity.notFound().build();
 
-    if (payment.getStatus() == PaymentStatus.PAID) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        if (payment.getStatus() == PaymentStatus.PAID) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
+
+        if (paymentmethod == null || paymentmethod.getPaymentMethod() == null
+                || paymentmethod.getPaymentMethod().trim().isEmpty()) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        final PaymentMethod method;
+        try {
+            method = PaymentMethod.valueOf(paymentmethod.getPaymentMethod().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        payment.setStatus(PaymentStatus.PAID);
+        payment.setPaidAt(LocalDateTime.now());
+        payment.setPaymentMethod(method);
+        payment = repo.save(payment);
+
+        PaymentEventDto event = new PaymentEventDto();
+        event.setEvent("payment-status-updated");
+        event.setStatus("PAID");
+        event.setPaymentMethod(method.name());
+        event.setPaidAt(payment.getPaidAt().format(PAID_AT_FMT));
+        event.setReserveId(payment.getReserveId());
+        event.setPaymentId(payment.getPaymentId());
+        String json = mapper.writeValueAsString(event);
+        kafka.send("payment", json);
+        return ResponseEntity.ok(convertToDto(payment));
     }
 
-    if (paymentmethod == null || paymentmethod.getPaymentMethod() == null
-            || paymentmethod.getPaymentMethod().trim().isEmpty()) {
-        return ResponseEntity.badRequest().build();
-    }
-
-    final PaymentMethod method;
-    try {
-        method = PaymentMethod.valueOf(paymentmethod.getPaymentMethod().trim().toUpperCase());
-    } catch (IllegalArgumentException e) {
-        return ResponseEntity.badRequest().build();
-    }
-
-    payment.setStatus(PaymentStatus.PAID);
-    payment.setPaidAt(LocalDateTime.now());
-    payment.setPaymentMethod(method);
-    payment = repo.save(payment);
-
-    PaymentEventDto event = new PaymentEventDto();
-    event.setEvent("payment-status-updated");
-    event.setStatus("PAID");
-    event.setPaymentMethod(method.name());
-    event.setPaidAt(payment.getPaidAt().format(PAID_AT_FMT));
-    event.setReserveId(payment.getReserveId());
-    event.setPaymentId(payment.getPaymentId());
-    String json = mapper.writeValueAsString(event);
-    kafka.send("payment", json);
-    return ResponseEntity.ok(convertToDto(payment));
-}
-
-    //deletePayment
+    // deletePayment
     @DeleteMapping("/{paymentId}")
     @Transactional
     public ResponseEntity<Void> deleteReceipt(@PathVariable Long paymentId) throws JsonProcessingException {
-        if (!repo.existsById(paymentId)) return ResponseEntity.notFound().build();
+        if (!repo.existsById(paymentId))
+            return ResponseEntity.notFound().build();
         repo.deleteById(paymentId);
         PaymentEventDto paymentDelete = new PaymentEventDto();
         paymentDelete.setPaymentId(paymentId);
@@ -198,46 +261,49 @@ public class PaymentController {
         paymentDelete.setEvent("payment-deleted");
         String json = mapper.writeValueAsString(paymentDelete);
         kafka.send("payment", json);
-        return ResponseEntity.noContent().build();     
+        return ResponseEntity.noContent().build();
     }
 
     public PaymentDto convertToDto(Payment p) {
-    PaymentDto dto = new PaymentDto();
-    dto.setPaymentId(p.getPaymentId());
-    dto.setReserveId(p.getReserveId());
-    dto.setUserId(p.getUserId());
-    dto.setStatus(p.getStatus() == null ? null : p.getStatus().name());
-    dto.setPaymentMethod(p.getPaymentMethod() == null ? null : p.getPaymentMethod().name());
-    dto.setPaidAt(p.getPaidAt());
-    
-    if (p.getReserveId() != null) {
-    try {
-        BigDecimal reserveDto =BigDecimal.valueOf( reserveClient.getReserveByReserveId(p.getReserveId()).getPrice());
-    } catch (Exception e) {
-        dto.setGrandTotal(BigDecimal.ZERO);
-    }
-} else {
-    dto.setGrandTotal(BigDecimal.ZERO);
-}
+        PaymentDto dto = new PaymentDto();
+        dto.setPaymentId(p.getPaymentId());
+        dto.setReserveId(p.getReserveId());
+        dto.setUserId(p.getUserId());
+        dto.setStatus(p.getStatus() == null ? null : p.getStatus().name());
+        dto.setPaymentMethod(p.getPaymentMethod() == null ? null : p.getPaymentMethod().name());
+        dto.setPaidAt(p.getPaidAt());
 
+        if (p.getReserveId() != null) {
+            try {
+                BigDecimal reserveDto = BigDecimal
+                        .valueOf(reserveClient.getReserveByReserveId(p.getReserveId()).getPrice());
+            } catch (Exception e) {
+                dto.setGrandTotal(BigDecimal.ZERO);
+            }
+        } else {
+            dto.setGrandTotal(BigDecimal.ZERO);
+        }
 
-    try {
-    JsonNode userJson = userClient.getUserById(p.getUserId());
-    if (userJson != null && userJson.has("name") && !userJson.get("name").isNull()) {
-        dto.setUserName(userJson.get("name").asText());
-    } else {
-        dto.setUserName("User not found");
-    }
-} catch (Exception e) {
-    dto.setUserName("User not found");
-} return dto;
+        try {
+            JsonNode userJson = userClient.getUserById(p.getUserId());
+            if (userJson != null && userJson.has("name") && !userJson.get("name").isNull()) {
+                dto.setUserName(userJson.get("name").asText());
+            } else {
+                dto.setUserName("User not found");
+            }
+        } catch (Exception e) {
+            dto.setUserName("User not found");
+        }
+        return dto;
     }
 
-    //paresePaymentStatus
+    // paresePaymentStatus
     private PaymentStatus parseStatus(String s) {
-        if (s == null || s.isBlank()) return null;
-        try { return PaymentStatus.valueOf(s.trim().toUpperCase()); }
-        catch (IllegalArgumentException ex) {
+        if (s == null || s.isBlank())
+            return null;
+        try {
+            return PaymentStatus.valueOf(s.trim().toUpperCase());
+        } catch (IllegalArgumentException ex) {
             throw new BadStatusException(s);
         }
     }

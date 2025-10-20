@@ -1,5 +1,7 @@
 package lab.microservice.payment.FeignClient;
 
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,4 +14,7 @@ import lab.microservice.payment.Dtos.ReserveDto;
 public interface ReserveClient {
     @GetMapping("/reserves/{id}")
     ReserveDto getReserveByReserveId(@PathVariable("id") Long id);
+
+    @GetMapping("/reserves/car/{id}")
+    List<ReserveDto> getReserveByCarId(@PathVariable("id") Long carId);
 }

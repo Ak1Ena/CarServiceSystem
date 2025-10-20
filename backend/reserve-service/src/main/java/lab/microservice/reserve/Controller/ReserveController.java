@@ -68,6 +68,14 @@ public class ReserveController {
     //         return ResponseEntity.notFound().build();
     //     }
     // }
+    @GetMapping("/car/{id}")
+    public ResponseEntity<List<Reserve>> getReserveByCarId(@PathVariable Long id){
+        List<Reserve> allReserves = reserveRepository.findByCarId(id);
+        if (allReserves.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(allReserves);
+    }
     @GetMapping("/owner/{id}")
     public ResponseEntity<List<Reserve>> getReserveByOwnerId(@PathVariable Long id){
         List<CarDto> cars = carClient.getCarsByUserId(id);
