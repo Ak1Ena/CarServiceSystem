@@ -3,17 +3,17 @@ package lab.microservice.payment.Dtos;
 import java.time.LocalDateTime;
 
 public class PaymentEventDto {
-    private Long receiptId;
+    private Long reserveId;
     private Long paymentId;
     private String status;
     private String paymentMethod;
     private String event;
     private String paidAt;
-    public Long getReceiptId() {
-        return receiptId;
+    public Long getReserveId() {
+        return reserveId;
     }
-    public void setReceiptId(Long receiptId) {
-        this.receiptId = receiptId;
+    public void setReserveId(Long reserveId) {
+        this.reserveId = reserveId;
     }
     public Long getPaymentId() {
         return paymentId;

@@ -12,5 +12,5 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long> {
     boolean existsByCarId(Long carId);
     void deleteByCarId(Long carId);
     List<Reserve> findByCarId(Long carId);
-    Reserve findByOwnerId(Long ownerId);
+    List<Reserve> findByUserId(Long userId);
 }

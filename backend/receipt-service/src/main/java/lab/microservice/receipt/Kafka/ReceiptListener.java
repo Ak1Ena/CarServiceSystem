@@ -1,6 +1,8 @@
 package lab.microservice.receipt.Kafka;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +71,7 @@ public void paymentStatusUpdated(ConsumerRecord<String, String> record) throws J
     String eventType = node.path("event").asText("").trim();
 
     if ("payment-status-updated".equalsIgnoreCase(eventType)) {
-        long receiptId = node.path("receiptId").asLong(0L);
+        long reserveId = node.path("reserveId").asLong(0L);
         String status   = node.path("status").asText("").toUpperCase();
         String method   = node.path("paymentMethod").asText(null);
         String paidAt = node.path("paidAt").asText(null);
@@ -77,19 +79,20 @@ public void paymentStatusUpdated(ConsumerRecord<String, String> record) throws J
         try {
             PaymentStatus paymentStatus = PaymentStatus.valueOf(status);
 
-            Receipt receipt = receiptRepository.findByReceiptId(receiptId); // หรือ findById(receiptId)
-            if (receipt == null) {
-                log.warn("Receipt with ID {} not found", receiptId);
+            Optional<Receipt> receiptOp = receiptRepository.findByReserveId(reserveId); // หรือ findById(receiptId)
+            if (receiptOp == null) {
+                log.warn("reserveId with ID {} not found", reserveId);
                 return;
             }
+            Receipt receipt = receiptOp.get();
 
             receipt.setStatus(paymentStatus);
             if (paymentStatus == PaymentStatus.PAID) {
                 if (method != null) receipt.setPaymentMethod(method);
                 if (paidAt != null)  receipt.setIssueAt(paidAt); 
-                log.info("Payment completed for receiptId {}", receiptId);
+                log.info("Payment completed for receiptId {}", receipt.getReceiptId());
             } else {
-                log.info("Payment status updated to {} for receiptId {}", status, receiptId);
+                log.info("Payment status updated to {} for receiptId {}", status, receipt.getReceiptId());
             }
 
             receiptRepository.save(receipt);

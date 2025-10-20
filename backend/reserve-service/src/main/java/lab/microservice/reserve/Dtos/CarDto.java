@@ -15,7 +15,7 @@ public class CarDto {
     private byte[] img1;
     private byte[] img2;
     private byte[] img3;
-    private Double price;
+    private Long price;
     private String pickUp;
     
     public String getPickUp(){
@@ -60,11 +60,11 @@ public class CarDto {
         this.img3 = img3;
     }
 
-    public Double getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 

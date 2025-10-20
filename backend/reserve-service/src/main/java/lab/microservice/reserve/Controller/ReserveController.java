@@ -1,8 +1,10 @@
 package lab.microservice.reserve.Controller;
 
 import lab.microservice.reserve.entity.Reserve;
+import lab.microservice.reserve.Dtos.CarDto;
 import lab.microservice.reserve.Dtos.ReceiptDto;
 import lab.microservice.reserve.Dtos.ReserveDto;
+import lab.microservice.reserve.Dtos.UserDto;
 import lab.microservice.reserve.FeignClient.CarClient;
 import lab.microservice.reserve.FeignClient.ReceiptClient;
 import lab.microservice.reserve.Repo.ReserveRepository;
@@ -10,7 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/reserves")
@@ -42,17 +46,50 @@ public class ReserveController {
         return ResponseEntity.ok(list);
     }
 
-    // GET receipt by reserve id
-    @GetMapping("/{id}/receipt")
-    public ResponseEntity<ReceiptDto> getReceiptByReserveId(@PathVariable Long id) {
-        try {
-            ReceiptDto receipt = receiptClient.getByReserveId(id);
-            return ResponseEntity.ok(receipt);
-        } catch (Exception e) {
-            return ResponseEntity.notFound().build();
+    @GetMapping("/{id}")
+    public ResponseEntity<Reserve> getReserveById(@PathVariable Long id){
+        if (id != null) {
+            Optional<Reserve> reserve = reserveRepository.findById(id);
+            if (!reserve.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(reserve.get());
+        }else{
+            return ResponseEntity.badRequest().build();
         }
     }
+    // GET receipt by reserve id
+    // @GetMapping("/{id}/receipt")
+    // public ResponseEntity<ReceiptDto> getReceiptByReserveId(@PathVariable Long id) {
+    //     try {
+    //         ReceiptDto receipt = receiptClient.getByReserveId(id);
+    //         return ResponseEntity.ok(receipt);
+    //     } catch (Exception e) {
+    //         return ResponseEntity.notFound().build();
+    //     }
+    // }
+    @GetMapping("/owner/{id}")
+    public ResponseEntity<List<Reserve>> getReserveByOwnerId(@PathVariable Long id){
+        List<CarDto> cars = carClient.getCarsByUserId(id);
+        List<Reserve> allReserves = new ArrayList<>();
+        for(CarDto car : cars){
+            List<Reserve> reservesForCar = reserveRepository.findByCarId(car.getId());
+            allReserves.addAll(reservesForCar);
+        } 
+        if (allReserves.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(allReserves);
+    }
 
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<Reserve>> getReserveByUserId(@PathVariable Long id){
+        List<Reserve> reserves = reserveRepository.findByUserId(id);
+        if (reserves.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(reserves);
+    }
     // POST
     @PostMapping
     public ResponseEntity<ReserveDto> createReserve(@RequestBody ReserveDto dto) {

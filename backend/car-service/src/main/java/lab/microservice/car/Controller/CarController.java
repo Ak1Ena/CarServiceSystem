@@ -57,7 +57,7 @@ public class CarController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CarDto> addCar(@RequestBody CarDto carDto,
+    public ResponseEntity<CarDto> addCar(@RequestPart CarDto carDto,
             @RequestPart(value = "images", required = false) MultipartFile[] images) throws IOException {
         Car car = new Car();
         car.setModel(carDto.getModel());
@@ -125,7 +125,7 @@ public class CarController {
     }
 
     @PatchMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<CarDto> updateCar(@PathVariable Long id, @RequestBody CarDto carDto,
+    public ResponseEntity<CarDto> updateCar(@PathVariable Long id, @RequestPart CarDto carDto,
             @RequestPart(value = "images", required = false) MultipartFile[] images) throws IOException {
         Car car = carRepository.findById(id).orElse(null);
         if (carDto != null) {

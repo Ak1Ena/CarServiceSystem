@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 
 public class PaymentDto {
     private Long paymentId;
-    private Long receiptId;
+    private Long reserveId;
     private Long userId;
     private String userName;
     private String status;
@@ -13,11 +13,11 @@ public class PaymentDto {
     private BigDecimal grandTotal;
     private LocalDateTime paidAt;
 
-    public Long getReceiptId() {
-        return receiptId;
+    public Long getReserveId() {
+        return reserveId;
     }
-    public void setReceiptId(Long receiptId) {
-        this.receiptId = receiptId;
+    public void setReserveId(Long reserveId) {
+        this.reserveId = reserveId;
     }
     public String getStatus() {
         return status;

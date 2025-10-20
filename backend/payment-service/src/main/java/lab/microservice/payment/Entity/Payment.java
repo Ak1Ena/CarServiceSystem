@@ -23,7 +23,7 @@ public class Payment {
 	
 	private String username;
 	private Long userId;
-	private Long receiptId;
+	private Long reserveId;
 	private BigDecimal grandTotal;
 
 	
@@ -44,11 +44,11 @@ public class Payment {
 	public void setPaymentId(Long paymentId) {
 		this.paymentId = paymentId;
 	}
-	public Long getReceiptId() {
-		return receiptId;
+	public Long getReserveId() {
+		return reserveId;
 	}
-	public void setReceiptId(Long receiptId) {
-		this.receiptId = receiptId;
+	public void setReserveId(Long reserveId) {
+		this.reserveId = reserveId;
 	}
 	public BigDecimal getGrandTotal() {
 		return grandTotal;

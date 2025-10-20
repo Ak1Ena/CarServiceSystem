@@ -1,15 +1,6 @@
-package lab.microservice.reserve.entity;
+package lab.microservice.payment.Dtos;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
-@Entity
-public class Reserve {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class ReserveDto {
     private Long id;
     private Long carId;
     private Long userId;
@@ -18,18 +9,8 @@ public class Reserve {
     private Long price;
     private String status;
 
-    public Reserve() {
+    public ReserveDto() {
     }
-
-    public Reserve(Long id, Long carId, Long userId, String startDate, String endDate) {
-        this.id = id;
-        this.carId = carId;
-        this.userId = userId;
-        this.startDate = startDate;
-        this.endDate = endDate;
-    }
-    
-    
 
     public String getStatus() {
         return status;
@@ -39,14 +20,14 @@ public class Reserve {
         this.status = status;
     }
 
-    public Long getPrice() {
-        return price;
+    public ReserveDto(Long id, Long carId, Long userId, String startDate, String endDate) {
+        this.id = id;
+        this.carId = carId;
+        this.userId = userId;
+        this.startDate = startDate;
+        this.endDate = endDate;
     }
-
-    public void setPrice(Long price) {
-        this.price = price;
-    }
-
+    
     public Long getId() {
         return id;
     }
@@ -87,4 +68,11 @@ public class Reserve {
         this.endDate = endDate;
     }
 
+    public Long getPrice() {
+        return price;
+    }
+
+    public void setPrice(Long price) {
+        this.price = price;
+    }
 }

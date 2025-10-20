@@ -3,6 +3,9 @@ package lab.microservice.reserve.FeignClient;
 import lab.microservice.reserve.Dtos.CarDto;
 import lab.microservice.reserve.Dtos.ReceiptDto;
 import lab.microservice.reserve.Dtos.ReserveDto;
+
+import java.util.List;
+
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,4 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 public interface CarClient {
     @GetMapping("/car/{id}")
     CarDto getCarByCarId(@PathVariable Long id);
+
+    @GetMapping("/car/user/{userId}")
+    List<CarDto> getCarsByUserId(@PathVariable Long userId);
 }

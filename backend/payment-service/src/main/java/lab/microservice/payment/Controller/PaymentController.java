@@ -33,11 +33,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lab.microservice.payment.Dtos.CarDto;
 import lab.microservice.payment.Dtos.PaymentDto;
 import lab.microservice.payment.Dtos.PaymentEventDto;
+import lab.microservice.payment.Dtos.ReserveDto;
 import lab.microservice.payment.Entity.Payment;
 import lab.microservice.payment.Entity.PaymentMethod;
 import lab.microservice.payment.Entity.PaymentStatus;
 import lab.microservice.payment.FeignClient.CarFeignClient;
 import lab.microservice.payment.FeignClient.ReceiptFeignClient;
+import lab.microservice.payment.FeignClient.ReserveClient;
 import lab.microservice.payment.FeignClient.UserFeignClient;
 import lab.microservice.payment.Repository.PaymentRepository;
 
@@ -55,16 +57,18 @@ public class PaymentController {
     private final UserFeignClient userClient;
     private final ReceiptFeignClient receiptClient;
     private final CarFeignClient carClient;
+    private final ReserveClient reserveClient;
     ObjectMapper mapper = new ObjectMapper();
     private static final DateTimeFormatter PAID_AT_FMT =
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-    public PaymentController(PaymentRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient,ReceiptFeignClient receiptClient,CarFeignClient carClient) {
+    public PaymentController(PaymentRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient,ReceiptFeignClient receiptClient,CarFeignClient carClient, ReserveClient reserveClient) {
         this.repo = repo;
         this.kafka = kafka;
         this.userClient = userClient;
         this.receiptClient = receiptClient;
         this.carClient = carClient;
+        this.reserveClient = reserveClient;
     }
 
     //getAll
@@ -111,12 +115,12 @@ public class PaymentController {
     @Transactional
     public ResponseEntity<PaymentDto> createPayment(@RequestBody PaymentDto dto) {
 
-    if (dto.getReceiptId() == null || dto.getUserId() == null) {
+    if (dto.getReserveId() == null || dto.getUserId() == null) {
         return ResponseEntity.badRequest().build();
     }
 
-    if (repo.existsByReceiptId(dto.getReceiptId())) {
-            throw new DuplicatePaymentForReceiptException(dto.getReceiptId());
+    if (repo.existsByReserveId(dto.getReserveId())) {
+            throw new DuplicatePaymentForReserveException(dto.getReserveId());
         }
 
         JsonNode userJson = userClient.getUserById(dto.getUserId());
@@ -128,21 +132,10 @@ public class PaymentController {
             .header("Error-Message", "User not found").build();
         }
 
-        BigDecimal amount = BigDecimal.ZERO;
-    try {
-        JsonNode receiptJson = receiptClient.getReceiptAmountById(Long.valueOf(dto.getReceiptId()));
-        if (receiptJson != null && receiptJson.has("grandTotal") && !receiptJson.get("grandTotal").isNull()) {
-            amount = receiptJson.get("grandTotal").decimalValue();
-        } else {
-            return ResponseEntity.badRequest().build();
-        }
-    }   catch (Exception e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-       .header("Error-Message", "grandTotal not found ").build();
-    }
+        BigDecimal amount =BigDecimal.valueOf(reserveClient.getReserveByReserveId(dto.getReserveId()).getPrice());
 
         Payment payment = new Payment();
-        payment.setReceiptId(dto.getReceiptId());
+        payment.setReserveId(dto.getReserveId());
         payment.setUserId(dto.getUserId());
         payment.setUsername(userName);
         payment.setGrandTotal(amount);
@@ -186,7 +179,7 @@ public class PaymentController {
     event.setStatus("PAID");
     event.setPaymentMethod(method.name());
     event.setPaidAt(payment.getPaidAt().format(PAID_AT_FMT));
-    event.setReceiptId(payment.getReceiptId());
+    event.setReserveId(payment.getReserveId());
     event.setPaymentId(payment.getPaymentId());
     String json = mapper.writeValueAsString(event);
     kafka.send("payment", json);
@@ -201,7 +194,7 @@ public class PaymentController {
         repo.deleteById(paymentId);
         PaymentEventDto paymentDelete = new PaymentEventDto();
         paymentDelete.setPaymentId(paymentId);
-        paymentDelete.setReceiptId(paymentId);
+        paymentDelete.setReserveId(paymentId);
         paymentDelete.setEvent("payment-deleted");
         String json = mapper.writeValueAsString(paymentDelete);
         kafka.send("payment", json);
@@ -211,20 +204,15 @@ public class PaymentController {
     public PaymentDto convertToDto(Payment p) {
     PaymentDto dto = new PaymentDto();
     dto.setPaymentId(p.getPaymentId());
-    dto.setReceiptId(p.getReceiptId());
+    dto.setReserveId(p.getReserveId());
     dto.setUserId(p.getUserId());
     dto.setStatus(p.getStatus() == null ? null : p.getStatus().name());
     dto.setPaymentMethod(p.getPaymentMethod() == null ? null : p.getPaymentMethod().name());
     dto.setPaidAt(p.getPaidAt());
     
-    if (p.getReceiptId() != null) {
+    if (p.getReserveId() != null) {
     try {
-        JsonNode receiptJson = receiptClient.getReceiptAmountById(p.getReceiptId());
-        if (receiptJson != null && receiptJson.has("grandTotal") && !receiptJson.get("grandTotal").isNull()) {
-            dto.setGrandTotal(receiptJson.get("grandTotal").decimalValue());
-        } else {
-            dto.setGrandTotal(BigDecimal.ZERO);
-        }
+        BigDecimal reserveDto =BigDecimal.valueOf( reserveClient.getReserveByReserveId(p.getReserveId()).getPrice());
     } catch (Exception e) {
         dto.setGrandTotal(BigDecimal.ZERO);
     }
@@ -255,9 +243,9 @@ public class PaymentController {
     }
 
     @ResponseStatus(org.springframework.http.HttpStatus.CONFLICT)
-    static class DuplicatePaymentForReceiptException extends RuntimeException {
-        public DuplicatePaymentForReceiptException(Long receiptId) {
-            super("Payment already exists for receiptId=" + receiptId);
+    static class DuplicatePaymentForReserveException extends RuntimeException {
+        public DuplicatePaymentForReserveException(Long reserveId) {
+            super("Payment already exists for ReserveId=" + reserveId);
         }
     }
 

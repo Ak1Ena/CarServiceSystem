@@ -24,7 +24,7 @@ public class Car {
     @Lob
     private byte[] img3;
     
-    private Double price;
+    private Long price;
 
     private String pickUp;
     
@@ -34,11 +34,11 @@ public class Car {
     public void setPickUp(String pickUp){
         this.pickUp = pickUp;
     }
-    public Double getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 

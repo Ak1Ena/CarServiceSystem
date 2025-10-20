@@ -6,7 +6,7 @@ public class ReserveDto {
     private Long userId;
     private String startDate;
     private String endDate;
-    private Double price;
+    private Long price;
     private String status;
 
     public ReserveDto() {
@@ -68,11 +68,11 @@ public class ReserveDto {
         this.endDate = endDate;
     }
 
-    public Double getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(Double price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 }
