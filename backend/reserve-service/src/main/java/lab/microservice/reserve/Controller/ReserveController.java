@@ -37,8 +37,7 @@ public class ReserveController {
                         reserve.getCarId(),
                         reserve.getUserId(),
                         reserve.getStartDate(),
-                        reserve.getEndDate(),
-                        reserve.getOwnerId()))
+                        reserve.getEndDate()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
@@ -62,9 +61,10 @@ public class ReserveController {
                 dto.getCarId(),
                 dto.getUserId(),
                 dto.getStartDate(),
-                dto.getEndDate(),
-                dto.getOwnerId()
+                dto.getEndDate()
         );
+        reserve.setStatus("Wating");
+        reserve.setPrice(carClient.getCarByCarId(dto.getCarId()).getPrice());
 
         Reserve saved = reserveRepository.save(reserve);
 
@@ -73,8 +73,7 @@ public class ReserveController {
                 saved.getCarId(),
                 saved.getUserId(),
                 saved.getStartDate(),
-                saved.getEndDate(),
-                saved.getOwnerId()
+                saved.getEndDate()
         );
 
         return ResponseEntity.ok(responseDto);
@@ -89,7 +88,7 @@ public class ReserveController {
                     reserve.setUserId(dto.getUserId());
                     reserve.setStartDate(dto.getStartDate());
                     reserve.setEndDate(dto.getEndDate());
-                    reserve.setOwnerId(dto.getOwnerId());
+                    reserve.setStatus(dto.getStatus());
                     Reserve updated = reserveRepository.save(reserve);
 
                     ReserveDto response = new ReserveDto(
@@ -97,8 +96,7 @@ public class ReserveController {
                             updated.getCarId(),
                             updated.getUserId(),
                             updated.getStartDate(),
-                            updated.getEndDate(),
-                            updated.getOwnerId()
+                            updated.getEndDate()
                     );
                     return ResponseEntity.ok(response);
                 })
@@ -114,7 +112,9 @@ public class ReserveController {
                     if (dto.getUserId() != null) reserve.setUserId(dto.getUserId());
                     if (dto.getStartDate() != null) reserve.setStartDate(dto.getStartDate());
                     if (dto.getEndDate() != null) reserve.setEndDate(dto.getEndDate());
-                    if (dto.getOwnerId() != null) reserve.setOwnerId(dto.getOwnerId());
+                    if (dto.getStatus() != null) {
+                        reserve.setStatus(dto.getStatus());
+                    }
                     Reserve updated = reserveRepository.save(reserve);
 
                     ReserveDto response = new ReserveDto(
@@ -122,9 +122,9 @@ public class ReserveController {
                             updated.getCarId(),
                             updated.getUserId(),
                             updated.getStartDate(),
-                            updated.getEndDate(),
-                            updated.getOwnerId()
+                            updated.getEndDate()
                     );
+                    response.setStatus(updated.getStatus());
                     return ResponseEntity.ok(response);
                 })
                 .orElse(ResponseEntity.notFound().build());

@@ -13,26 +13,38 @@ public class Reserve {
     private Long id;
     private Long carId;
     private Long userId;
-    private Long ownerId;
     private String startDate;
     private String endDate;
+    private Double price;
+    private String status;
 
     public Reserve() {
     }
 
-    public Reserve(Long id, Long carId, Long userId, String startDate, String endDate, Long ownerId) {
+    public Reserve(Long id, Long carId, Long userId, String startDate, String endDate) {
         this.id = id;
         this.carId = carId;
         this.userId = userId;
-        this.ownerId = ownerId;
         this.startDate = startDate;
         this.endDate = endDate;
     }
-    public void setOwnerId(Long ownerId){
-        this.ownerId = ownerId;
+    
+    
+
+    public String getStatus() {
+        return status;
     }
-    public Long getOwnerId(){
-        return ownerId;
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 
     public Long getId() {

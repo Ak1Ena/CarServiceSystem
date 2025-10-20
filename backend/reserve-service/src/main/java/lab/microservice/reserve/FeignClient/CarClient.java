@@ -1,5 +1,6 @@
 package lab.microservice.reserve.FeignClient;
 
+import lab.microservice.reserve.Dtos.CarDto;
 import lab.microservice.reserve.Dtos.ReceiptDto;
 import lab.microservice.reserve.Dtos.ReserveDto;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -12,5 +13,5 @@ import com.fasterxml.jackson.databind.JsonNode;
 @FeignClient(name = "car-service")
 public interface CarClient {
     @GetMapping("/car/{id}")
-    JsonNode getCarByUserId(@PathVariable Long id);
+    CarDto getCarByCarId(@PathVariable Long id);
 }

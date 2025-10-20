@@ -6,24 +6,28 @@ public class ReserveDto {
     private Long userId;
     private String startDate;
     private String endDate;
-    private Long ownerId;
+    private Double price;
+    private String status;
+
     public ReserveDto() {
     }
 
-    public ReserveDto(Long id, Long carId, Long userId, String startDate, String endDate, Long ownerId) {
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public ReserveDto(Long id, Long carId, Long userId, String startDate, String endDate) {
         this.id = id;
         this.carId = carId;
         this.userId = userId;
-        this.ownerId = ownerId;
         this.startDate = startDate;
         this.endDate = endDate;
     }
-    public void setOwnerId(Long ownerId){
-        this.ownerId = ownerId;
-    }
-    public Long getOwnerId(){
-        return ownerId;
-    }
+    
     public Long getId() {
         return id;
     }
@@ -62,5 +66,13 @@ public class ReserveDto {
 
     public void setEndDate(String endDate) {
         this.endDate = endDate;
+    }
+
+    public Double getPrice() {
+        return price;
+    }
+
+    public void setPrice(Double price) {
+        this.price = price;
     }
 }
