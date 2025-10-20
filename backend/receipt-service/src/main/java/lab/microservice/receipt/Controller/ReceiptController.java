@@ -133,8 +133,8 @@ public class ReceiptController {
                 PaymentDto payment = paymentClient.getPaymentByReserveId(reserve.getId());
 
                 Map<String,Object> res = new HashMap<>();
-                res.put("owner", owner.getFirstName() + " " + owner.getLastName());
-                res.put("user", customer.getFirstName() + " " + customer.getLastName());
+                res.put("owner", owner.getName());
+                res.put("user", customer.getName());
                 res.put("car", car);
                 res.put("payment", payment);
                 res.put("receipt", receipt);

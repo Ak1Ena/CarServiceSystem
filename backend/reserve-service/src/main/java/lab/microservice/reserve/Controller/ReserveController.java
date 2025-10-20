@@ -97,7 +97,7 @@ public class ReserveController {
                         UserDto user = userClient.getUserById(reserve.getUserId());
                         Map<String,Object> reserveInfo = new HashMap<>();
                         reserveInfo.put("reserve", reserve);
-                        reserveInfo.put("user", user.getFirstName() + " " + user.getLastName());
+                        reserveInfo.put("user", user.getName());
                         reserves.add(reserveInfo);
                     }
                     carRes.put("reserves", reserves);

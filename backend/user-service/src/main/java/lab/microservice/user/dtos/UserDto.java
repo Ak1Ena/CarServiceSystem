@@ -50,7 +50,7 @@ public class UserDto {
         dto.setStatus(user.getStatus());
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
-        dto.setUserRole(user.getUserRole());
+        dto.setRole(user.getUserRole());
         // ไม่ include password ใน DTO
         return dto;
     }
@@ -139,6 +139,6 @@ public class UserDto {
     
     public String getPhoneNumber() { return phone; }
     public void setPhoneNumber(String phoneNumber) { this.phone = phoneNumber; }
-    public UserRole getUserRole(){return role;}
-    public void setUserRole(UserRole role){this.role = role;}
+    public UserRole getRole(){return role;}
+    public void setRole(UserRole role){this.role = role;}
 }

@@ -12,12 +12,12 @@ import lab.microservice.payment.Dtos.CarDto;
 
 @FeignClient(name = "car-service")
 public interface CarFeignClient {
-    @GetMapping("/car/user/{userId}")
+    @GetMapping("/cars/user/{userId}")
     List<CarDto> getCarsByUserId(@PathVariable("userId") Long userId);
 
-    @GetMapping("/car/{carid}")
+    @GetMapping("/cars/{carid}")
     CarDto getCarByCarId(@PathVariable("carid") Long carId);
 
-    @GetMapping("/car/{carid}/user")
+    @GetMapping("/cars/{carid}/user")
     JsonNode getCarAndOwnerByCarId(@PathVariable("carid") Long carId);
 }

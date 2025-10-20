@@ -214,12 +214,19 @@ public class PaymentController {
 
         BigDecimal amount = BigDecimal.valueOf(reserveClient.getReserveByReserveId(dto.getReserveId()).getPrice());
 
+        final PaymentMethod method;
+        try {
+            method = PaymentMethod.valueOf(dto.getPaymentMethod().trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
         Payment payment = new Payment();
         payment.setReserveId(dto.getReserveId());
         payment.setUserId(dto.getUserId());
         payment.setUsername(userName);
         payment.setGrandTotal(amount);
         payment.setStatus(PaymentStatus.PENDING);
+        payment.setPaymentMethod(method);
         payment = repo.save(payment);
         PaymentDto response = convertToDto(payment);
         return ResponseEntity.ok(response);

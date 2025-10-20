@@ -121,6 +121,8 @@ public class CarController {
         dto.setImg1(car.getImg1());
         dto.setImg2(car.getImg2());
         dto.setImg3(car.getImg3());
+        dto.setPrice(car.getPrice());
+        dto.setType(car.getType());
         dto.setPickUp(car.getPickUp());
         return ResponseEntity.ok(dto);
     }

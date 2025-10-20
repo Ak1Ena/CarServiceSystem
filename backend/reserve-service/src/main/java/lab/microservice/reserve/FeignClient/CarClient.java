@@ -15,9 +15,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 
 @FeignClient(name = "car-service")
 public interface CarClient {
-    @GetMapping("/car/{id}")
+    @GetMapping("/cars/{id}")
     CarDto getCarByCarId(@PathVariable Long id);
 
-    @GetMapping("/car/user/{userId}")
+    @GetMapping("/cars/user/{userId}")
     List<CarDto> getCarsByUserId(@PathVariable Long userId);
 }

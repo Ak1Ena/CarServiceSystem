@@ -133,10 +133,10 @@ public class UserService {
             // Update fields
             existingUser.setUsername(userDto.getUsername());
             existingUser.setEmail(userDto.getEmail());
-            existingUser.setFirstName(userDto.getFirstName());
-            existingUser.setLastName(userDto.getLastName());
+            existingUser.setName(userDto.getName());
             existingUser.setPhoneNumber(userDto.getPhoneNumber());
             existingUser.setAddress(userDto.getAddress());
+            existingUser.setUserRole(userDto.getRole());
             if (userDto.getStatus() != null) {
                 existingUser.setStatus(userDto.getStatus());
             }
@@ -223,8 +223,7 @@ public class UserService {
         copy.setId(original.getId());
         copy.setUsername(original.getUsername());
         copy.setEmail(original.getEmail());
-        copy.setFirstName(original.getFirstName());
-        copy.setLastName(original.getLastName());
+        copy.setName(original.getName());
         copy.setPhoneNumber(original.getPhoneNumber());
         copy.setAddress(original.getAddress());
         copy.setStatus(original.getStatus());
