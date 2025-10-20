@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,9 +35,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lab.microservice.receipt.Dtos.CarDto;
+import lab.microservice.receipt.Dtos.PaymentDto;
 import lab.microservice.receipt.Dtos.ReceiptDto;
 import lab.microservice.receipt.Dtos.ReceiptEventDto;
 import lab.microservice.receipt.Dtos.ReceiptItemDto;
+import lab.microservice.receipt.Dtos.ReserveDto;
 import lab.microservice.receipt.Dtos.UserDto;
 import lab.microservice.receipt.Entity.Receipt;
 import lab.microservice.receipt.Entity.Receipt.PaymentStatus;
@@ -117,31 +120,35 @@ public class ReceiptController {
 
     @GetMapping("user/{userId}")
     public ResponseEntity<List<Map<String,Object>>> getByUserId(@PathVariable Long userId) {
-        Map<String,Object> res = new HashMap<>();
-        List<Map<String,Object>> result = new ArrayList<>();
-        // List<CarDto> cars = carClient.getCarsByUserId(userId);
-        List<Receipt> rec = repo.findByuserId(userId);
-        UserDto customer = userClient.getUserById(userId);
-        for(Receipt receipt : rec){
-            UserDto owner = userClient.getUserById(
-                reserveClient.getReserveByReserveId(receipt.getReserveId())
-                .getUserId()
-                );
-            CarDto car = carClient.getCarByCarId(
-                reserveClient.getReserveByReserveId(receipt.getReserveId())
-                .getCarId()
-            );
-            res.put("owner", owner.getFirstName()+ " " + owner.getLastName());
-            res.put("user", customer.getFirstName() + " " + customer.getLastName());
-            res.put("car", car);
-            res.put("payment", paymentClient.getPaymentByReserveId(
-                reserveClient.getReserveByReserveId(receipt.getReserveId())
-                .getId()
-            ));
-            result.add(res);
+        try {
+            List<Map<String,Object>> result = new ArrayList<>();
+
+            List<Receipt> receipts = repo.findByuserId(userId);
+            UserDto customer = userClient.getUserById(userId);
+
+            for (Receipt receipt : receipts) {
+                ReserveDto reserve = reserveClient.getReserveByReserveId(receipt.getReserveId());
+                UserDto owner = userClient.getUserById(reserve.getUserId());
+                CarDto car = carClient.getCarByCarId(reserve.getCarId());
+                PaymentDto payment = paymentClient.getPaymentByReserveId(reserve.getId());
+
+                Map<String,Object> res = new HashMap<>();
+                res.put("owner", owner.getFirstName() + " " + owner.getLastName());
+                res.put("user", customer.getFirstName() + " " + customer.getLastName());
+                res.put("car", car);
+                res.put("payment", payment);
+                res.put("receipt", receipt);
+                res.put("reserve", reserve);
+
+                result.add(res);
+            }
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.ok(result);
     }
+
 
     @GetMapping("/status/{status}")
     public List<ReceiptDto> getByStatus(@PathVariable String status) {

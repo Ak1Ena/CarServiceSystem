@@ -84,32 +84,27 @@ public class ReserveController {
     }
     @GetMapping("/owner/{id}")
     public ResponseEntity<List<Map<String,Object>>> getReserveByOwnerId(@PathVariable Long id){
-        // List<CarDto> cars = carClient.getCarsByUserId(id);
-        // List<Reserve> allReserves = new ArrayList<>();
-        // for(CarDto car : cars){
-        //     List<Reserve> reservesForCar = reserveRepository.findByCarId(car.getId());
-        //     allReserves.addAll(reservesForCar);
-        // } 
-        // if (allReserves.isEmpty()) {
-        //     return ResponseEntity.notFound().build();
-        // }
-        // return ResponseEntity.ok(allReserves);
         try{
-            Map<String,Object> res = new HashMap<>();
             List<Map<String,Object>> result = new ArrayList<>();
             List<CarDto> cars = carClient.getCarsByUserId(id);
-            List<Reserve> allReserves = new ArrayList<>();
-            for(CarDto car : cars){
-                List<Reserve> reservesForCar = reserveRepository.findByCarId(id);
-                for(Reserve reserve : reservesForCar){
-                    res.clear();
-                    UserDto user = userClient.getUserById(reserve.getUserId());
-                    res.put("car", car);
-                    res.put("reserve", reserve);
-                    res.put("user", user.getFirstName() + " " + user.getLastName());
+           for (CarDto car : cars) {
+                List<Reserve> reservesForCar = reserveRepository.findByCarId(car.getId());
+                if (!reservesForCar.isEmpty()) {
+                    Map<String, Object> carRes = new HashMap<>();
+                    carRes.put("car", car);
+                    List<Map<String, Object>> reserves = new ArrayList<>();
+                    for (Reserve reserve : reservesForCar) {
+                        UserDto user = userClient.getUserById(reserve.getUserId());
+                        Map<String,Object> reserveInfo = new HashMap<>();
+                        reserveInfo.put("reserve", reserve);
+                        reserveInfo.put("user", user.getFirstName() + " " + user.getLastName());
+                        reserves.add(reserveInfo);
+                    }
+                    carRes.put("reserves", reserves);
+                    result.add(carRes);
                 }
-                result.add(res);
             }
+
             return ResponseEntity.ok(result);
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
