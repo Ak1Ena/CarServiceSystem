@@ -100,6 +100,7 @@ public class CarController {
             dto.setImg1(car.getImg1());
             dto.setImg2(car.getImg2());
             dto.setImg3(car.getImg3());
+            dto.setType(car.getType());
             dto.setPrice(car.getPrice());
             dto.setPickUp(car.getPickUp());
             return dto;
