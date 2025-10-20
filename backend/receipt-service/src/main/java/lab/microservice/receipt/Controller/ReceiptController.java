@@ -8,8 +8,11 @@ package lab.microservice.receipt.Controller;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +33,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import lab.microservice.receipt.Dtos.CarDto;
 import lab.microservice.receipt.Dtos.ReceiptDto;
 import lab.microservice.receipt.Dtos.ReceiptEventDto;
 import lab.microservice.receipt.Dtos.ReceiptItemDto;
+import lab.microservice.receipt.Dtos.UserDto;
 import lab.microservice.receipt.Entity.Receipt;
 import lab.microservice.receipt.Entity.Receipt.PaymentStatus;
 import lab.microservice.receipt.Entity.ReceiptItem;
+import lab.microservice.receipt.FeignClient.CarFeignClient;
 import lab.microservice.receipt.FeignClient.PaymentClient;
+import lab.microservice.receipt.FeignClient.ReserveClient;
 import lab.microservice.receipt.FeignClient.UserFeignClient;
 import lab.microservice.receipt.Repository.ReceiptRepository;
 
@@ -50,15 +57,19 @@ public class ReceiptController {
     private final KafkaTemplate<String, String> kafka;
     private final UserFeignClient userClient;
     private final PaymentClient paymentClient;
+    private final CarFeignClient carClient;
+    private final ReserveClient reserveClient;
     @Value("${app.kafka.topic}")
     private String topic;
     ObjectMapper mapper = new ObjectMapper();
 
-    public ReceiptController(ReceiptRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient, PaymentClient paymentClient) {
+    public ReceiptController(ReceiptRepository repo, KafkaTemplate<String, String> kafka,UserFeignClient userClient, PaymentClient paymentClient, CarFeignClient carClient, ReserveClient reserveClient) {
         this.repo = repo;
         this.kafka = kafka;
         this.userClient = userClient;
         this.paymentClient = paymentClient;
+        this.carClient = carClient;
+        this.reserveClient = reserveClient;
     }
     @GetMapping("/payment/{receiptId}")
     public ResponseEntity<JsonNode> getPaymentByReceipt(@PathVariable Long id){
@@ -66,6 +77,22 @@ public class ReceiptController {
         JsonNode payment = paymentClient.getPaymentByPaymentId(id);
         return ResponseEntity.ok(payment);
     }
+
+    // @GetMapping("/details/{receiptId}")
+    // public ResponseEntity<List<Map<String,Object>>> getReceiptWithDetails(@PathVariable Long receiptid){
+    //     Map<String,Object> res = new HashMap<>();
+    //     List result = new ArrayList<>();
+    //     Optional<Receipt>opt = repo.findById(receiptid);
+    //     if (!opt.isPresent()) {
+    //         return ResponseEntity.notFound().build();
+    //     }
+    //     Receipt receipt = opt.get();
+    //     res.put(receipt, receipt)
+        
+
+    //     return ResponseEntity.ok(result);
+    // }
+
      @GetMapping
     public ResponseEntity<List<Receipt>> getAllReceipts() {
         List<Receipt> receipts = repo.findAll();
@@ -89,9 +116,31 @@ public class ReceiptController {
     }
 
     @GetMapping("user/{userId}")
-    public List<ReceiptDto> getByPayment(@PathVariable Long paymentId) {
-        return repo.findByuserId(paymentId)
-                   .stream().map(this::toDto).collect(Collectors.toList());
+    public ResponseEntity<List<Map<String,Object>>> getByUserId(@PathVariable Long userId) {
+        Map<String,Object> res = new HashMap<>();
+        List<Map<String,Object>> result = new ArrayList<>();
+        // List<CarDto> cars = carClient.getCarsByUserId(userId);
+        List<Receipt> rec = repo.findByuserId(userId);
+        UserDto customer = userClient.getUserById(userId);
+        for(Receipt receipt : rec){
+            UserDto owner = userClient.getUserById(
+                reserveClient.getReserveByReserveId(receipt.getReserveId())
+                .getUserId()
+                );
+            CarDto car = carClient.getCarByCarId(
+                reserveClient.getReserveByReserveId(receipt.getReserveId())
+                .getCarId()
+            );
+            res.put("owner", owner.getFirstName()+ " " + owner.getLastName());
+            res.put("user", customer.getFirstName() + " " + customer.getLastName());
+            res.put("car", car);
+            res.put("payment", paymentClient.getPaymentByReserveId(
+                reserveClient.getReserveByReserveId(receipt.getReserveId())
+                .getId()
+            ));
+            result.add(res);
+        }
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/status/{status}")
@@ -111,9 +160,9 @@ public class ReceiptController {
             throw new DuplicateReceiptForReserveException(req.getReserveId());
         }
 
-        JsonNode userJson = userClient.getUserById(req.getUserId());
-        String userName = (userJson != null && userJson.has("name")) 
-        ? userJson.get("name").asText() 
+        UserDto userJson = userClient.getUserById(req.getUserId());
+        String userName = (userJson != null) 
+        ? userJson.getName() 
         : "Unknown";
         if (userName == "Unknown" || userName.isBlank()) {
             return ResponseEntity.badRequest().build();
@@ -254,10 +303,8 @@ public class ReceiptController {
         dto.setGrandTotal(r.getGrandTotal());
         dto.setStatus(r.getStatus() == null ? null : r.getStatus().name());
         try {
-        JsonNode userJson = userClient.getUserById(r.getUserId());
-        if (userJson.has("name")) {
-            dto.setUserName(userJson.get("name").asText());
-        }
+        UserDto userJson = userClient.getUserById(r.getUserId());
+        dto.setUserName(userJson.getUsername());
     } catch (Exception e) {
         dto.setUserName("User not found");
     }

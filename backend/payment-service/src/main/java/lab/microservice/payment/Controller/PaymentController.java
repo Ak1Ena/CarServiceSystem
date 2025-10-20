@@ -8,7 +8,10 @@ package lab.microservice.payment.Controller;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -103,6 +106,7 @@ public class PaymentController {
     // return ResponseEntity.ok(result);
     // }
     // getByPaymentId
+
     @GetMapping("/owner/{ownerId}")
     public ResponseEntity<JsonNode> getPaymentDetailsForOwner(@PathVariable Long ownerId){
         try {
@@ -142,6 +146,22 @@ public class PaymentController {
         }catch (Exception e){
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+    }
+
+    @GetMapping("/reserve/{reserveId}")
+    public ResponseEntity<PaymentDto> getByReserveId(@PathVariable Long reserveId){
+        Payment p = repo.findByReserveId(reserveId);
+        PaymentDto po = new PaymentDto();
+        po.setUserId(p.getUserId());
+        po.setUserName(p.getUsername());
+        po.setGrandTotal(p.getGrandTotal());
+        po.setPaidAt(p.getPaidAt());
+        po.setPaymentId(p.getPaymentId());
+        po.setPaymentMethod(p.getPaymentMethod().toString());
+        po.setReserveId(p.getReserveId());
+        po.setStatus(p.getStatus().toString());
+
+        return ResponseEntity.ok(po);
     }
 
     @GetMapping("/{paymentId}")
