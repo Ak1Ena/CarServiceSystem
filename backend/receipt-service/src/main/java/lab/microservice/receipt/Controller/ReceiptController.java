@@ -118,7 +118,7 @@ public class ReceiptController {
                    .orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("user/{userId}")
+   @GetMapping("user/{userId}")
     public ResponseEntity<List<Map<String,Object>>> getByUserId(@PathVariable Long userId) {
         try {
             List<Map<String,Object>> result = new ArrayList<>();
@@ -147,7 +147,7 @@ public class ReceiptController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-    }
+}
 
 
     @GetMapping("/status/{status}")
@@ -215,11 +215,11 @@ public class ReceiptController {
 
         recalcTotals(r);
         r = repo.save(r);
-        ReceiptEventDto event = new ReceiptEventDto();
-        event.setEvent("receipt-updated");
-        event.setReceiptId(id);
-        String json = mapper.writeValueAsString(event);
-        kafka.send("payment", json);
+        // ReceiptEventDto event = new ReceiptEventDto();
+        // event.setEvent("receipt-updated");
+        // event.setReceiptId(id);
+        // String json = mapper.writeValueAsString(event);
+        // kafka.send("payment", json);
         return ResponseEntity.ok(toDto(r));
     }
 
@@ -248,11 +248,11 @@ public class ReceiptController {
 
         if (needRecalc) recalcTotals(r);
         r = repo.save(r);
-        ReceiptEventDto event = new ReceiptEventDto();
-        event.setEvent("receipt-updated");
-        event.setReceiptId(id);
-        String json = mapper.writeValueAsString(event);
-        kafka.send("payment", json);
+        // ReceiptEventDto event = new ReceiptEventDto();
+        // event.setEvent("receipt-updated");
+        // event.setReceiptId(id);
+        // String json = mapper.writeValueAsString(event);
+        // kafka.send("payment", json);
         return ResponseEntity.ok(toDto(r));
     }
 

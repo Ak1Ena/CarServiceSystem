@@ -9,7 +9,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByStatus(PaymentStatus status);
     boolean existsByReserveId(Long reserveId);
     List<Payment> findByUserId(Long userId);
-    List<Payment> findByReceiptId(Long receiptId);
     Payment findByPaymentId(Long paymendId);
     Payment findByReserveId(Long reserveId);
 }

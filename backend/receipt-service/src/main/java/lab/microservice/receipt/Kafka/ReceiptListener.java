@@ -50,7 +50,7 @@ public class ReceiptListener {
 
         for (Receipt receipt : receipts) {
             ReceiptEventDto receiptEventDto = new ReceiptEventDto();
-            receiptEventDto.setReceiptId(receipt.getReceiptId());
+            receiptEventDto.setPaymentId(receipt.getPaymentId());
             receiptEventDto.setEvent("receipt-updated");
 
             String json = mapper.writeValueAsString(receiptEventDto);

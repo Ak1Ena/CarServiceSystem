@@ -1,15 +1,15 @@
 package lab.microservice.receipt.Dtos;
 
 public class ReceiptEventDto {
-    Long receiptId;
+    Long paymentId;
     String event;
 
-    public Long getReceiptId() {
-        return receiptId;
+    public Long getPaymentId() {
+        return paymentId;
     }
 
-    public void setReceiptId(Long receiptId) {
-        this.receiptId = receiptId;
+    public void setPaymentId(Long paymentId) {
+        this.paymentId = paymentId;
     }
 
     public String getEvent() {
