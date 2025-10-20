@@ -7,13 +7,17 @@ import lab.microservice.reserve.Dtos.ReserveDto;
 import lab.microservice.reserve.Dtos.UserDto;
 import lab.microservice.reserve.FeignClient.CarClient;
 import lab.microservice.reserve.FeignClient.ReceiptClient;
+import lab.microservice.reserve.FeignClient.UserFeignClient;
 import lab.microservice.reserve.Repo.ReserveRepository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 @RestController
@@ -23,12 +27,14 @@ public class ReserveController {
     private final ReserveRepository reserveRepository;
     private final ReceiptClient receiptClient;
     private final CarClient carClient;
+    private final UserFeignClient userClient;
 
     @Autowired
-    public ReserveController(ReserveRepository reserveRepository, ReceiptClient receiptClient, CarClient carClient) {
+    public ReserveController(ReserveRepository reserveRepository, ReceiptClient receiptClient, CarClient carClient, UserFeignClient userClient) {
         this.reserveRepository = reserveRepository;
         this.receiptClient = receiptClient;
         this.carClient = carClient;
+        this.userClient = userClient;
     }
 
 
@@ -77,17 +83,38 @@ public class ReserveController {
         return ResponseEntity.ok(allReserves);
     }
     @GetMapping("/owner/{id}")
-    public ResponseEntity<List<Reserve>> getReserveByOwnerId(@PathVariable Long id){
-        List<CarDto> cars = carClient.getCarsByUserId(id);
-        List<Reserve> allReserves = new ArrayList<>();
-        for(CarDto car : cars){
-            List<Reserve> reservesForCar = reserveRepository.findByCarId(car.getId());
-            allReserves.addAll(reservesForCar);
-        } 
-        if (allReserves.isEmpty()) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<List<Map<String,Object>>> getReserveByOwnerId(@PathVariable Long id){
+        // List<CarDto> cars = carClient.getCarsByUserId(id);
+        // List<Reserve> allReserves = new ArrayList<>();
+        // for(CarDto car : cars){
+        //     List<Reserve> reservesForCar = reserveRepository.findByCarId(car.getId());
+        //     allReserves.addAll(reservesForCar);
+        // } 
+        // if (allReserves.isEmpty()) {
+        //     return ResponseEntity.notFound().build();
+        // }
+        // return ResponseEntity.ok(allReserves);
+        try{
+            Map<String,Object> res = new HashMap<>();
+            List<Map<String,Object>> result = new ArrayList<>();
+            List<CarDto> cars = carClient.getCarsByUserId(id);
+            List<Reserve> allReserves = new ArrayList<>();
+            for(CarDto car : cars){
+                List<Reserve> reservesForCar = reserveRepository.findByCarId(id);
+                for(Reserve reserve : reservesForCar){
+                    res.clear();
+                    UserDto user = userClient.getUserById(reserve.getUserId());
+                    res.put("car", car);
+                    res.put("reserve", reserve);
+                    res.put("user", user.getFirstName() + " " + user.getLastName());
+                }
+                result.add(res);
+            }
+            return ResponseEntity.ok(result);
+        }catch (Exception e){
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-        return ResponseEntity.ok(allReserves);
+        
     }
 
     @GetMapping("/user/{id}")
