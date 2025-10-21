@@ -1,8 +1,8 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { getReceipt } from "../services/receiptSlice";
-import ReceiptCard from "../components/ReceiptCard";
+import { getReceipt } from "../receiptSlice.js";
+import ReceiptCard from "../components/ReceiptCard.jsx";
 
 const ReceiptPage = () => {
   const { id } = useParams(); 
@@ -13,9 +13,9 @@ const ReceiptPage = () => {
     dispatch(getReceipt(id));
   }, [dispatch, id]);
 
-  if (loading) return <p>กำลังโหลดข้อมูลใบเสร็จ...</p>;
-  if (error) return <p>เกิดข้อผิดพลาด: {error}</p>;
-  if (!data) return <p>ไม่พบใบเสร็จ</p>;
+  if (loading) return (<p>{"กำลังโหลดข้อมูลใบเสร็จ..."}</p>);
+  if (error) return (<p>{"เกิดข้อผิดพลาด: "}{error}</p>);
+  if (!data) return (<p>{"ไม่พบใบเสร็จ"}</p>);
 
   return (
     <div className="receipt-page">

@@ -1,9 +1,9 @@
 import React from "react";
-import { Route } from "react-router-dom";
-import ReceiptPage from "../pages/ReceiptPage";
+import { Route, Routes } from "react-router-dom";
+import ReceiptPage from "./pages/ReceiptPage.jsx";
 
 const ReceiptRoutes = () => {
-  return <Route path="/receipt/:id" element={<ReceiptPage />} />;
+  return <Routes><Route path="/:id" element={<ReceiptPage />} /></Routes>;
 };
 
 export default ReceiptRoutes;
