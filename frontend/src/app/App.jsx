@@ -1,9 +1,12 @@
 import AppRoutes from "./routes"
+import Container from "../components/Container"
 function App() {
 
   return (
     <>
-     <AppRoutes />
+    <Container>
+      <AppRoutes />
+     </Container>
     </>
   )
 }
