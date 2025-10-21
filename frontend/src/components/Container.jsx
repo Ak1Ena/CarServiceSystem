@@ -4,7 +4,7 @@ function Container({ children }){
     return <main className="bg-[#222121]">{children}</main>
 }
 
-Container.PropTypes = {
+Container.propTypes = {
     children: PropTypes.node.isRequired,
 }
 
