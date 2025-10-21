@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { register } from '../../store/actions/userActions';
 import UserForm from '../components/userform';
-import AuthContainer from '../components/authlayout';
+import AuthLayout from '../components/authlayout';
 // import { useNavigate } from 'react-router-dom';
 
 const RegisterPage = () => {

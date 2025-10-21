@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../../store/actions/userActions';
-import AuthContainer from '../components/authlayout';
+import AuthLayout from '../components/authlayout';
 // import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
@@ -33,7 +33,7 @@ const LoginPage = () => {
     };
 
     return (
-        <AuthContainer title="เข้าสู่ระบบ (Login)">
+        <AuthLayout title="เข้าสู่ระบบ (Login)">
             {status === 'loading' && <p style={{ color: 'blue' }}>กำลังเข้าสู่ระบบ...</p>}
             {error && <p style={{ color: 'red' }}>Error: {error}</p>}
 
@@ -63,7 +63,7 @@ const LoginPage = () => {
                     {status === 'loading' ? 'กำลังดำเนินการ...' : 'เข้าสู่ระบบ'}
                 </button>
             </form>
-        </AuthContainer>
+        </AuthLayout>
     );
 };
 
