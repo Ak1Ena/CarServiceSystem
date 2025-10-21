@@ -5,7 +5,7 @@ import { configureStore } from "@reduxjs/toolkit"
 // import receiptReducer from "../features/receipt/receiptSlice.js"
 // import reserveReducer from "../features/reserve/reserveSlice.js"
 
-export const store = configureStore({
+export default store = configureStore({
     reducer:{
         // car:carReducer,
         // user:userReducer,
