@@ -2,10 +2,13 @@ package lab.microservice.reserve.Controller;
 
 import lab.microservice.reserve.entity.Reserve;
 import lab.microservice.reserve.Dtos.CarDto;
+import lab.microservice.reserve.Dtos.PaymentDto;
 import lab.microservice.reserve.Dtos.ReceiptDto;
 import lab.microservice.reserve.Dtos.ReserveDto;
 import lab.microservice.reserve.Dtos.UserDto;
+import lab.microservice.reserve.Dtos.PaymentDto.PaymentStatus;
 import lab.microservice.reserve.FeignClient.CarClient;
+import lab.microservice.reserve.FeignClient.PaymentClient;
 import lab.microservice.reserve.FeignClient.ReceiptClient;
 import lab.microservice.reserve.FeignClient.UserFeignClient;
 import lab.microservice.reserve.Repo.ReserveRepository;
@@ -14,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,13 +32,15 @@ public class ReserveController {
     private final ReceiptClient receiptClient;
     private final CarClient carClient;
     private final UserFeignClient userClient;
+    private final PaymentClient paymentClient;
 
     @Autowired
-    public ReserveController(ReserveRepository reserveRepository, ReceiptClient receiptClient, CarClient carClient, UserFeignClient userClient) {
+    public ReserveController(ReserveRepository reserveRepository, ReceiptClient receiptClient, CarClient carClient, UserFeignClient userClient, PaymentClient paymentClient) {
         this.reserveRepository = reserveRepository;
         this.receiptClient = receiptClient;
         this.carClient = carClient;
         this.userClient = userClient;
+        this.paymentClient = paymentClient;
     }
 
 
@@ -181,6 +187,21 @@ public class ReserveController {
                     if (dto.getEndDate() != null) reserve.setEndDate(dto.getEndDate());
                     if (dto.getStatus() != null) {
                         reserve.setStatus(dto.getStatus());
+                    }
+                    if (dto.getStatus() != null && dto.getStatus().equalsIgnoreCase("SUCCESS")) {
+                        PaymentDto paymentDto = new PaymentDto();
+                        paymentDto.setUserId(dto.getUserId());
+                        try{
+                            paymentDto.setUserName(userClient.getUserById(dto.getUserId()).getUsername());
+                        }catch( Exception e ){
+                            paymentDto.setUserName("UNKNOWN");
+                        }
+                        paymentDto.setGrandTotal(BigDecimal.valueOf(dto.getPrice()));
+                        paymentDto.setPaidAt(null);
+                        paymentDto.setPaymentMethod("CASH");
+                        paymentDto.setStatus(String.valueOf(PaymentStatus.PENDING));
+                        paymentDto.setReserveId(dto.getId());
+                        paymentClient.createPayment(paymentDto);
                     }
                     Reserve updated = reserveRepository.save(reserve);
 

@@ -194,7 +194,7 @@ public class PaymentController {
     @PostMapping
     @Transactional
     public ResponseEntity<PaymentDto> createPayment(@RequestBody PaymentDto dto) {
-
+        Payment payment = new Payment();
         if (dto.getReserveId() == null || dto.getUserId() == null) {
             return ResponseEntity.badRequest().build();
         }
@@ -203,28 +203,33 @@ public class PaymentController {
             throw new DuplicatePaymentForReserveException(dto.getReserveId());
         }
 
-        JsonNode userJson = userClient.getUserById(dto.getUserId());
-        String userName = (userJson != null && userJson.has("name"))
-                ? userJson.get("name").asText()
-                : "Unknown";
-        if (userName.equals("Unknown") || userName.isBlank()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .header("Error-Message", "User not found").build();
+        if (dto.getUserName() == null) {
+            JsonNode userJson = userClient.getUserById(dto.getUserId());
+            String userName = (userJson != null && userJson.has("name"))
+                    ? userJson.get("name").asText()
+                    : "Unknown";
+            if (userName.equals("Unknown") || userName.isBlank()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .header("Error-Message", "User not found").build();
+            }
+            payment.setUsername(userName);
+        }else{
+            payment.setUsername(dto.getUserName());
         }
-
-        BigDecimal amount = BigDecimal.valueOf(reserveClient.getReserveByReserveId(dto.getReserveId()).getPrice());
-
+        if (dto.getGrandTotal() instanceof BigDecimal) {
+            payment.setGrandTotal(dto.getGrandTotal());
+        }else{
+            BigDecimal amount = BigDecimal.valueOf(reserveClient.getReserveByReserveId(dto.getReserveId()).getPrice());
+            payment.setGrandTotal(amount);
+        }
         final PaymentMethod method;
         try {
             method = PaymentMethod.valueOf(dto.getPaymentMethod().trim().toUpperCase());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
-        Payment payment = new Payment();
         payment.setReserveId(dto.getReserveId());
         payment.setUserId(dto.getUserId());
-        payment.setUsername(userName);
-        payment.setGrandTotal(amount);
         payment.setStatus(PaymentStatus.PENDING);
         payment.setPaymentMethod(method);
         payment = repo.save(payment);
