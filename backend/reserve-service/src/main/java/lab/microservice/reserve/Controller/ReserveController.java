@@ -54,6 +54,7 @@ public class ReserveController {
                         reserve.getUserId(),
                         reserve.getStartDate(),
                         reserve.getEndDate()))
+                        
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
     }
@@ -201,6 +202,7 @@ public class ReserveController {
                         paymentDto.setPaymentMethod("CASH");
                         paymentDto.setStatus(String.valueOf(PaymentStatus.PENDING));
                         paymentDto.setReserveId(dto.getId());
+                        paymentDto.setGrandTotal(BigDecimal.valueOf(dto.getPrice()));
                         paymentClient.createPayment(paymentDto);
                     }
                     Reserve updated = reserveRepository.save(reserve);

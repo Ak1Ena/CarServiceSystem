@@ -48,7 +48,8 @@ import lab.microservice.payment.FeignClient.ReceiptFeignClient;
 import lab.microservice.payment.FeignClient.ReserveClient;
 import lab.microservice.payment.FeignClient.UserFeignClient;
 import lab.microservice.payment.Repository.PaymentRepository;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  *
  * @author User
@@ -64,8 +65,11 @@ public class PaymentController {
     private final ReceiptFeignClient receiptClient;
     private final CarFeignClient carClient;
     private final ReserveClient reserveClient;
+    @Autowired
     ObjectMapper mapper = new ObjectMapper();
     private static final DateTimeFormatter PAID_AT_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+    private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
     public PaymentController(PaymentRepository repo, KafkaTemplate<String, String> kafka, UserFeignClient userClient,
             ReceiptFeignClient receiptClient, CarFeignClient carClient, ReserveClient reserveClient) {
@@ -108,48 +112,103 @@ public class PaymentController {
     // getByPaymentId
 
     @GetMapping("/owner/{ownerId}")
-    public ResponseEntity<JsonNode> getPaymentDetailsForOwner(@PathVariable Long ownerId){
+    public ResponseEntity<JsonNode> getPaymentDetailsForOwner(@PathVariable Long ownerId) {
+        ArrayNode res = mapper.createArrayNode();
+
         try {
-            
-       
-            List<CarDto> cars = carClient.getCarsByUserId(ownerId);
-            ObjectMapper mapper = new ObjectMapper();
-            ArrayNode res = mapper.createArrayNode();
-            for(CarDto car : cars){
-                List<ReserveDto> reserves = reserveClient.getReserveByCarId(car.getId());
+            List<CarDto> cars = null;
+            try {
+                cars = carClient.getCarsByUserId(ownerId);
+            } catch (Exception ex) {
+                logger.error("Failed to fetch cars for owner {}: {}", ownerId, ex.getMessage(), ex);
+                // return 502 since upstream failed
+                ObjectNode error = mapper.createObjectNode();
+                error.put("error", "Failed to fetch cars for owner");
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(error);
+            }
+
+            if (cars == null || cars.isEmpty()) {
+                ObjectNode result = mapper.createObjectNode();
+                result.put("ownerId", ownerId);
+                result.set("cars", res);
+                return ResponseEntity.ok(result);
+            }
+
+            for (CarDto car : cars) {
                 ObjectNode carNode = mapper.createObjectNode();
                 carNode.set("car", mapper.valueToTree(car));
-                ArrayNode resercesArr = mapper.createArrayNode();
-                for(ReserveDto reserve : reserves){
-                    Payment payment = repo.findByReserveId(reserve.getId());
+                ArrayNode reservesArr = mapper.createArrayNode();
+
+                List<ReserveDto> reserves = null;
+                try {
+                    reserves = reserveClient.getReserveByCarId(car.getId());
+                } catch (Exception ex) {
+                    logger.warn("Failed to fetch reserves for car {}: {}", car.getId(), ex.getMessage());
+                }
+
+                if (reserves == null || reserves.isEmpty()) {
+                    carNode.set("reserves", reservesArr);
+                    res.add(carNode);
+                    continue;
+                }
+
+                for (ReserveDto reserve : reserves) {
+                    if (reserve == null)
+                        continue;
                     ObjectNode reservNode = mapper.createObjectNode();
-                    reservNode.set("reserve",mapper.valueToTree(reserve));
+                    reservNode.set("reserve", mapper.valueToTree(reserve));
 
-                    JsonNode renter = userClient.getUserById(reserve.getUserId());
-                    reservNode.set("renter", renter);
+                    // renter
+                    JsonNode renter = null;
+                    try {
+                        renter = userClient.getUserById(reserve.getUserId());
+                    } catch (Exception ex) {
+                        logger.warn("Failed to fetch renter (userId={}) for reserve {}: {}", reserve.getUserId(),
+                                reserve.getId(), ex.getMessage());
+                    }
+                    reservNode.set("renter", renter == null ? mapper.nullNode() : renter);
 
-                    if (payment != null) {
-                        reservNode.set("payment", mapper.valueToTree(payment));
-                    }else{
+                    // payment (only if reserve id present)
+                    if (reserve.getId() != null) {
+                        try {
+                            Payment payment = repo.findByReserveId(reserve.getId());
+                            System.out.println("Looking for reserveId=" + reserve.getId() + ", found: " + payment);
+                            if (payment != null) {
+                                reservNode.set("payment", mapper.valueToTree(payment));
+                            } else {
+                                reservNode.putNull("payment");
+                            }
+                        } catch (Exception ex) {
+                            logger.warn("Failed to query payment for reserve {}: {}", reserve.getId(), ex.getMessage());
+                            reservNode.putNull("payment");
+                        }
+                    } else {
                         reservNode.putNull("payment");
                     }
-                    resercesArr.add(reservNode);
+
+                    reservesArr.add(reservNode);
                 }
-                carNode.set("reserves",resercesArr);
+
+                carNode.set("reserves", reservesArr);
                 res.add(carNode);
             }
-            ObjectNode result = mapper.createObjectNode();
-            result.set("ownerId",mapper.valueToTree(ownerId));
-            result.set("cars", res);
 
+            ObjectNode result = mapper.createObjectNode();
+            result.put("ownerId", ownerId);
+            result.set("cars", res);
             return ResponseEntity.ok(result);
-        }catch (Exception e){
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+
+        } catch (Exception e) {
+            // catch any unexpected errors and log stacktrace
+            logger.error("Unexpected error in getPaymentDetailsForOwner for owner {}: {}", ownerId, e.getMessage(), e);
+            ObjectNode error = mapper.createObjectNode();
+            error.put("error", "Internal server error");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
     @GetMapping("/reserve/{reserveId}")
-    public ResponseEntity<PaymentDto> getByReserveId(@PathVariable Long reserveId){
+    public ResponseEntity<PaymentDto> getByReserveId(@PathVariable Long reserveId) {
         Payment p = repo.findByReserveId(reserveId);
         PaymentDto po = new PaymentDto();
         po.setUserId(p.getUserId());
@@ -213,12 +272,12 @@ public class PaymentController {
                         .header("Error-Message", "User not found").build();
             }
             payment.setUsername(userName);
-        }else{
+        } else {
             payment.setUsername(dto.getUserName());
         }
         if (dto.getGrandTotal() instanceof BigDecimal) {
             payment.setGrandTotal(dto.getGrandTotal());
-        }else{
+        } else {
             BigDecimal amount = BigDecimal.valueOf(reserveClient.getReserveByReserveId(dto.getReserveId()).getPrice());
             payment.setGrandTotal(amount);
         }
