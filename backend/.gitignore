@@ -1,4 +1,0 @@
-.idea
-docker-compose.*.yml
-docker-compose.override.yml
-docker-compose.local.yml
