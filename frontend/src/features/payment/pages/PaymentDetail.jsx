@@ -1,2 +1,8 @@
-function PaymentDetail(){}
+function PaymentDetail(){
+    return(
+        <div>
+            TEST
+        </div>
+    )
+}
 export default PaymentDetail;
