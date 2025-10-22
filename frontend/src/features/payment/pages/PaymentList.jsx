@@ -6,22 +6,31 @@ import PaymentCard from "../components/PaymentCard";
 import { setPayments } from "../paymentSlice";
 function PaymentList() {
     const dispatch = useDispatch();
-    const payments = useSelector((state) => state.payments)
-    // const items = [
-    //     { id:1,title: "Engine Misfire", desc: "Engine misfire can be caused by..." },
-    //     { id:2,title: "Engine Misfire", desc: "Engine misfire can be caused by..." },
-    //     { id:3,title: "Engine Misfire", desc: "Engine misfire can be caused by..." },
-    //     { id:4,title: "Engine Misfire", desc: "Engine misfire can be caused by..." },
-    // ];
+    const payments = useSelector((state) => state.payment)
     useEffect(() => {
         async function getPayment() {
             const userId = localStorage.getItem("UserId") || 1;
             const res = await axios.get(`http://localhost:8086/payments/owner/${userId}`)
-            console.log(res)
-            dispatch(setPayments(res.data));
+            const paymentsArray = [];
+            res.data.cars.forEach(carItem => {
+                carItem.reserves.forEach(reserveItem => {
+                    paymentsArray.push({
+                        id: reserveItem.payment.paymentId,
+                        title: `Payment for ${carItem.car.model} (${carItem.car.plateNumber})`,
+                        desc: `Renter: ${reserveItem.renter.name}, Amount: ${reserveItem.payment.grandTotal}, Status: ${reserveItem.payment.status}`
+                    });
+                });
+            });
+            console.log(paymentsArray)
+            dispatch(setPayments(paymentsArray));
+
         }
         getPayment();
     }, [])
+    useEffect(() => {
+        console.log("Payments updated:", payments);
+    }, [payments]);
+
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-[#1e1e1e] py-16">
