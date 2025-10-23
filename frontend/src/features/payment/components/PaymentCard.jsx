@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-function PaymentCard({title, desc, id}) {
+function PaymentCard({ title, desc, id, img }) {
     const nav = useNavigate();
     const handleClick = (paymentId) => {
         nav(`/payments/${paymentId}`);
@@ -8,7 +8,11 @@ function PaymentCard({title, desc, id}) {
         <div
             className="flex justify-between items-center bg-white rounded-lg p-5 shadow-md"
         >
-            <div>
+            <img
+                src={`data:image/jpeg;base64,${img}`}
+                alt={title}
+                className="w-24 h-24 object-cover rounded-md flex-shrink-0"
+            />            <div>
                 <h2 className="font-semibold text-red-700">{title}</h2>
                 <p className="text-sm text-gray-700">{desc}</p>
             </div>

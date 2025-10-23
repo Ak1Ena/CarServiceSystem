@@ -10,18 +10,22 @@ function PaymentList() {
     const payments = useSelector((state) => state.payment); // raw data จาก Redux
 
     useEffect(() => {
+        // ถ้ามีข้อมูลแล้ว ไม่ต้อง fetch
+        if (payments?.cars && payments.cars.length > 0) return;
+
         async function getPayment() {
             const userId = localStorage.getItem("UserId") || 1;
             try {
                 const res = await axios.get(`http://localhost:8086/payments/owner/${userId}`);
                 console.log("Fetched payments:", res.data);
-                dispatch(setPayments(res.data)); // เก็บ raw data ทั้งหมด
+                dispatch(setPayments(res.data));
             } catch (error) {
                 console.error("Failed to fetch payments:", error);
             }
         }
+
         getPayment();
-    }, []);
+    }, [dispatch, payments]);
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-[#1e1e1e] py-16">
@@ -32,6 +36,7 @@ function PaymentList() {
                     payments.cars.flatMap(car =>
                         car.reserves.map(reserve => (
                             <PaymentCard
+                                img={car.car.img1}
                                 key={reserve.payment.paymentId}
                                 id={reserve.payment.paymentId}
                                 title={`Payment for ${car.car.model} (${car.car.plateNumber})`}
