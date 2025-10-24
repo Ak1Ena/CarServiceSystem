@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-function PaymentCard({ title, desc, id, img }) {
+function PaymentCard({ title, desc, id, img, status }) {
     const nav = useNavigate();
     const handleClick = (paymentId) => {
         nav(`/payments/${paymentId}`);
@@ -16,9 +16,16 @@ function PaymentCard({ title, desc, id, img }) {
                 <h2 className="font-semibold text-red-700">{title}</h2>
                 <p className="text-sm text-gray-700">{desc}</p>
             </div>
-            <button className="bg-red-700 hover:bg-red-800 text-white text-sm font-medium px-5 py-2 rounded-md transition" onClick={() => handleClick(id)}>
-                Confirm Payment
-            </button>
+            {
+                status === "PAID" ? (
+                    <span className="inline-block text-sm font-medium px-5 py-2 rounded-md bg-green-200 text-green-600 text-center">Paid</span>
+                ) : (
+                    <button className="bg-red-700 hover:bg-red-800 text-white text-sm font-medium px-5 py-2 rounded-md transition" onClick={() => handleClick(id)}>
+                        Confirm Payment
+                    </button>
+                )
+            }
+
         </div>
     );
 }

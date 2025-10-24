@@ -28,7 +28,7 @@ function PaymentList() {
         }
 
         getPayment();
-    }, [dispatch, payments]);
+    }, [dispatch,payments?.cars]);
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-[#1e1e1e] py-16">
@@ -54,6 +54,7 @@ function PaymentList() {
                                 id={reserve.payment.paymentId}
                                 title={`Payment for ${car.car.model} (${car.car.plateNumber})`}
                                 desc={`Renter: ${reserve.renter.name}, Amount: ${reserve.payment.grandTotal}, Status: ${reserve.payment.status}`}
+                                status={reserve.payment.status}
                             />
                         ))
                     )
