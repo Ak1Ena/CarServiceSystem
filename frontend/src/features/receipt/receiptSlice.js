@@ -1,39 +1,56 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { fetchReceiptById, createReceipt } from "./index";
+import { getReceiptById, getAllReceipts } from "./index.js";
 
-export const getReceipt = createAsyncThunk(
-  "receipt/getReceipt",
-  async (id) => await fetchReceiptById(id)
+export const fetchReceiptById = createAsyncThunk(
+  "receipt/fetchReceiptById",
+  async (id) => {
+    const data = await getReceiptById(id);
+    return data;
+  }
 );
 
-export const generateReceipt = createAsyncThunk(
-  "receipt/createReceipt",
-  async (data) => await createReceipt(data)
+export const fetchAllReceipts = createAsyncThunk(
+  "receipt/fetchAllReceipts",
+  async () => {
+    const data = await getAllReceipts();
+    return data;
+  }
 );
 
 const receiptSlice = createSlice({
   name: "receipt",
   initialState: {
-    data: null,
+    receiptDetail: null, 
+    receipts: [],
     loading: false,
     error: null,
   },
+  reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getReceipt.pending, (state) => {
+      .addCase(fetchReceiptById.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(getReceipt.fulfilled, (state, action) => {
+      .addCase(fetchReceiptById.fulfilled, (state, action) => {
         state.loading = false;
-        state.data = action.payload;
+        state.receiptDetail = action.payload;
       })
-      .addCase(getReceipt.rejected, (state, action) => {
+      .addCase(fetchReceiptById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message;
       })
-      .addCase(generateReceipt.fulfilled, (state, action) => {
-        state.data = action.payload;
+      .addCase(fetchAllReceipts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllReceipts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.receipts = action.payload;
+      })
+      .addCase(fetchAllReceipts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });
