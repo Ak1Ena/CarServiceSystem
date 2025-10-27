@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { register } from '../userSlice';
 import AuthLayout from '../components/authlayout'; 
 import { useNavigate } from 'react-router-dom';
+import Notification from '../components/notification';
 
 // Step 1: Create your ID
 const Step1ID = ({ formData, handleChange, nextStep }) => (
@@ -146,7 +147,6 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
 
 
 // Step 3: Role Choosing
-
 const Step3Role = ({ formData, handleChange, prevStep, handleSubmit, status }) => (
     <div className="space-y-6">
       
@@ -185,6 +185,7 @@ const Step3Role = ({ formData, handleChange, prevStep, handleSubmit, status }) =
 // === Register Page Main Component ===
 const RegisterPage = () => {
     const [step, setStep] = useState(1);
+    const [Message, setMessage] = useState(null);
     const [formData, setFormData] = useState({
         // Step 1 Fields
         firstName: '',
@@ -210,19 +211,20 @@ const RegisterPage = () => {
     const navigate = useNavigate();
     const { status, error, isRegistered } = useSelector((state) => state.user);
 
-    // จัดการ Popup และ Redirect
+    // จัดการ Redirect
     useEffect(() => {
         if (status === 'error' && error) {
-            // แจ้งเตือนเมื่อลงทะเบียนไม่สำเร็จ
-            alert(`Registration Failed: ${error}`);
+            setMessage({ title: 'Registration Failed!', text: error, type: 'error' });
+            setTimeout(() => setMessage(null), 5000);
         }
         
         if (isRegistered) {
-            // แจ้งเตือนเมื่อลงทะเบียนสำเร็จ
-            alert("Registration Successful! Please log in with your new account.");
-            
-            // พาผู้ใช้ไปหน้า Login
-            navigate('/login');
+            setMessage({ title: 'Success!', text: "Registration Successful!", type: 'success' });
+
+            // Redirect หลังแจ้งเตือน
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000); 
         }
     }, [status, error, isRegistered, navigate]); // ตรวจสอบสถานะ
     
@@ -241,12 +243,6 @@ const RegisterPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        // ตรวจสอบขั้นสุดท้ายก่อนส่ง (Frontend Validation)
-        if (!formData.username || !formData.password || !formData.email || !formData.phone) {
-            alert('Please fill out all required fields in Step 1.');
-            return; 
-        }
         
         // 1. รวมข้อมูล (Mapping to UserDto/Entity)
         const userDto = {
@@ -256,10 +252,7 @@ const RegisterPage = () => {
             password: formData.password,
             phone: formData.phone,
             
-            // name 
             name: `${formData.firstName} ${formData.lastName}`,
-            
-            // address (รวมข้อมูลละเอียดทั้งหมด)
             address: `เลขที่ ${formData.addressHouseNo}, ต.${formData.addressSubDistrict}, อ.${formData.addressDistrict}, จ.${formData.addressProvince} ${formData.addressZipCode}. ${formData.addressDetail}`,
             userRole: formData.userRole,
         };
@@ -287,9 +280,18 @@ const RegisterPage = () => {
     else if (step === 3) title = "What your role?";
 
     return (
-        <AuthLayout title={title}>
-            {renderStep()}
-        </AuthLayout>
+        <>
+            <Notification 
+                message={Message?.text} 
+                title={Message?.title} 
+                type={Message?.type} 
+                onClose={() => setMessage(null)} 
+            />
+
+            <AuthLayout title={title}>
+                {renderStep()}
+            </AuthLayout>
+        </>
     );
 };
 
