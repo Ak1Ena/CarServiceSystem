@@ -4,7 +4,7 @@ import CarRoutes from "../features/car/route.jsx"
 import PaymentRoutes from "../features/payment/route.jsx"
 import ReceiptRoutes from "../features/receipt/route.jsx"
 import ReserveRoutes from "../features/reserve/route.jsx"
-import UserRoutes from "../features/user/route.jsx"
+import { UserRoutes } from "../features/user/route.jsx"
 export default function AppRoutes(){
     return (
         <Routes>
