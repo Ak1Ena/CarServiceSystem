@@ -1,58 +1,37 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { getReceiptById, getAllReceipts } from "./index.js";
+import { createSlice } from '@reduxjs/toolkit';
+import { fetchReceiptsByUserId } from './services/Api.jsx';
 
-export const fetchReceiptById = createAsyncThunk(
-  "receipt/fetchReceiptById",
-  async (id) => {
-    const data = await getReceiptById(id);
-    return data;
-  }
-);
-
-export const fetchAllReceipts = createAsyncThunk(
-  "receipt/fetchAllReceipts",
-  async () => {
-    const data = await getAllReceipts();
-    return data;
-  }
-);
 
 const receiptSlice = createSlice({
-  name: "receipt",
+  name: 'receipts',
   initialState: {
-    receiptDetail: null, 
-    receipts: [],
-    loading: false,
+    data: [], 
+    status: 'idle', 
     error: null,
   },
-  reducers: {},
+  reducers: {}, 
   extraReducers: (builder) => {
     builder
-      .addCase(fetchReceiptById.pending, (state) => {
-        state.loading = true;
+    
+      .addCase(fetchReceiptsByUserId.pending, (state) => {
+        state.status = 'loading';
         state.error = null;
       })
-      .addCase(fetchReceiptById.fulfilled, (state, action) => {
-        state.loading = false;
-        state.receiptDetail = action.payload;
+    
+      .addCase(fetchReceiptsByUserId.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.data = action.payload; 
       })
-      .addCase(fetchReceiptById.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
-      })
-      .addCase(fetchAllReceipts.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(fetchAllReceipts.fulfilled, (state, action) => {
-        state.loading = false;
-        state.receipts = action.payload;
-      })
-      .addCase(fetchAllReceipts.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
+     
+      .addCase(fetchReceiptsByUserId.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload || 'Failed to fetch data'; 
       });
   },
 });
+
+export const selectReceipts = (state) => state.receipts?.data;
+export const selectStatus = (state) => state.receipts?.status;
+export const selectError = (state) => state.receipts?.error;
 
 export default receiptSlice.reducer;

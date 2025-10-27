@@ -1,16 +1,15 @@
-import React from "react";
+import React from 'react';
 
-const ReceiptHeader = ({ renterName, car }) => {
-  return (
-    <div className="receipt-header">
-      <h1>ใบเสร็จการเช่ารถ</h1>
-      <p><strong>ชื่อผู้เช่า:</strong> {renterName || "-"}</p>
-      <p>
-        <strong>รถที่เช่า:</strong>{" "}
-        {car ? `${car.brand || ""} ${car.model || ""} - ${car.licensePlate || ""}` : "-"}
-      </p>
-    </div>
-  );
+const ReceiptHeader = ({ owner, receiptId }) => {
+    return (
+        <header className="flex justify-between items-start border-b-2 border-gray-800 pb-3 mb-6">
+            <h1 className="text-3xl font-bold uppercase">ใบเสร็จรับเงิน</h1>
+            <div className="text-right text-sm">
+                <p className="font-semibold text-lg">{owner || 'Normaaaaa'}</p> 
+                <p className="text-xs text-gray-500">Order ID: {receiptId}</p>
+            </div>
+        </header>
+    );
 };
 
 export default ReceiptHeader;
