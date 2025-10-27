@@ -25,7 +25,7 @@ const Step1ID = ({ formData, handleChange, nextStep }) => (
 const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
     <div className="space-y-4">
         <div className="flex space-x-4">
-            {/* Input: บ้านเลขที่ (House No) */}
+           
             <input 
                 type="text" 
                 name="addressHouseNo" 
@@ -33,10 +33,9 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
                 value={formData.addressHouseNo} 
                 onChange={handleChange} 
                 required 
-                className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
             />
             
-            {/* Select: จังหวัด (Province) - ใช้ Input ชั่วคราว */}
             <input 
                 type="text" 
                 name="addressProvince" 
@@ -44,12 +43,12 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
                 value={formData.addressProvince} 
                 onChange={handleChange} 
                 required 
-                className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
             />
         </div>
 
         <div className="flex space-x-4">
-            {/* Select: อำเภอ (District) */}
+
             <input 
                 type="text" 
                 name="addressDistrict" 
@@ -57,10 +56,9 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
                 value={formData.addressDistrict} 
                 onChange={handleChange} 
                 required 
-                className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
             />
             
-            {/* Select: ตำบล (Sub-District) */}
             <input 
                 type="text" 
                 name="addressSubDistrict" 
@@ -68,11 +66,10 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
                 value={formData.addressSubDistrict} 
                 onChange={handleChange} 
                 required 
-                className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
             />
         </div>
         
-        {/* Input: รหัสไปรษณีย์ (Zip Code) */}
         <input 
             type="text" 
             name="addressZipCode" 
@@ -80,16 +77,15 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
             value={formData.addressZipCode} 
             onChange={handleChange} 
             required 
-            className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
         />
 
-        {/* Textarea: ข้อมูลเพิ่มเติม (Address Detail) */}
         <textarea 
             name="addressDetail" 
             placeholder="ข้อมูลเพิ่มเติม (เช่น ชื่ออาคาร หรือรายละเอียดซอย)" 
             value={formData.addressDetail} 
             onChange={handleChange} 
-            className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" 
+            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" 
             rows="3">
         </textarea>
         
