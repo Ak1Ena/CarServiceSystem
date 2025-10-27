@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { register } from '../userSlice';
 import AuthLayout from '../components/authlayout'; 
-// import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-
-// Step 1: Create your ID (First Name, Last Name, Email, Password, PHONE)
+// Step 1: Create your ID (First Name, Last Name, Email, Password, PHONE, USERNAME)
 const Step1ID = ({ formData, handleChange, nextStep }) => (
     <div className="space-y-4">
         <div className="flex space-x-4">
@@ -26,10 +25,73 @@ const Step1ID = ({ formData, handleChange, nextStep }) => (
 const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
     <div className="space-y-4">
         <div className="flex space-x-4">
-            <input type="text" name="addressHouseNo" placeholder="บ้านเลขที่" value={formData.addressHouseNo} onChange={handleChange} required className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
-            <input type="text" name="addressProvince" placeholder="จังหวัด" value={formData.addressProvince} onChange={handleChange} required className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
+            {/* Input: บ้านเลขที่ (House No) */}
+            <input 
+                type="text" 
+                name="addressHouseNo" 
+                placeholder="เลขที่" 
+                value={formData.addressHouseNo} 
+                onChange={handleChange} 
+                required 
+                className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+            />
+            
+            {/* Select: จังหวัด (Province) - ใช้ Input ชั่วคราว */}
+            <input 
+                type="text" 
+                name="addressProvince" 
+                placeholder="จังหวัด" 
+                value={formData.addressProvince} 
+                onChange={handleChange} 
+                required 
+                className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+            />
         </div>
-        <textarea name="addressDetail" placeholder="ข้อมูลเพิ่มเติม" value={formData.addressDetail} onChange={handleChange} className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" rows="3"></textarea>
+
+        <div className="flex space-x-4">
+            {/* Select: อำเภอ (District) */}
+            <input 
+                type="text" 
+                name="addressDistrict" 
+                placeholder="อำเภอ" 
+                value={formData.addressDistrict} 
+                onChange={handleChange} 
+                required 
+                className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+            />
+            
+            {/* Select: ตำบล (Sub-District) */}
+            <input 
+                type="text" 
+                name="addressSubDistrict" 
+                placeholder="ตำบล" 
+                value={formData.addressSubDistrict} 
+                onChange={handleChange} 
+                required 
+                className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+            />
+        </div>
+        
+        {/* Input: รหัสไปรษณีย์ (Zip Code) */}
+        <input 
+            type="text" 
+            name="addressZipCode" 
+            placeholder="รหัสไปรษณีย์" 
+            value={formData.addressZipCode} 
+            onChange={handleChange} 
+            required 
+            className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+        />
+
+        {/* Textarea: ข้อมูลเพิ่มเติม (Address Detail) */}
+        <textarea 
+            name="addressDetail" 
+            placeholder="ข้อมูลเพิ่มเติม (เช่น ชื่ออาคาร หรือรายละเอียดซอย)" 
+            value={formData.addressDetail} 
+            onChange={handleChange} 
+            className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" 
+            rows="3">
+        </textarea>
         
         <div className="flex space-x-4 mt-6">
             <button onClick={prevStep} className="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-lg transition duration-200">Back</button>
@@ -38,21 +100,30 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
     </div>
 );
 
+
 // Step 3: Role Choosing
+
 const Step3Role = ({ formData, handleChange, prevStep, handleSubmit, status }) => (
     <div className="space-y-6">
-        <p className="text-gray-600 text-center">What is your role?</p>
-        <div className="flex justify-center space-x-6">
-            <label className={`w-1/2 p-4 text-center border-2 rounded-lg cursor-pointer transition duration-200 ${formData.userRole === 'RENTER' ? 'bg-gray-200 border-red-500' : 'bg-gray-50 border-gray-300'}`}>
+      
+        <div className="flex flex-col space-y-4 items-center">
+            
+            <label className={`w-full max-w-xs p-4 border-2 rounded-lg cursor-pointer transition duration-200 
+                ${formData.userRole === 'RENTER' ? 'border-red-500' : 'border-gray-200'} 
+                flex items-center justify-center`}>
                 <input type="radio" name="userRole" value="RENTER" checked={formData.userRole === 'RENTER'} onChange={handleChange} className="hidden" required />
-                <p className="font-semibold">Customer (Renter)</p>
+                <p className="font-semibold text-center w-full">Renter</p>
             </label>
-            <label className={`w-1/2 p-4 text-center border-2 rounded-lg cursor-pointer transition duration-200 ${formData.userRole === 'OWNER' ? 'bg-gray-200 border-red-500' : 'bg-gray-50 border-gray-300'}`}>
+            
+            <label className={`w-full max-w-xs p-4 border-2 rounded-lg cursor-pointer transition duration-200 
+                ${formData.userRole === 'OWNER' ? 'border-red-500' : 'border-gray-200'} 
+                flex items-center justify-center`}>
                 <input type="radio" name="userRole" value="OWNER" checked={formData.userRole === 'OWNER'} onChange={handleChange} className="hidden" required />
-                <p className="font-semibold">Owner</p>
+                <p className="font-semibold text-center w-full">Owner</p>
             </label>
+            
         </div>
-
+        
         <div className="flex space-x-4 mt-6">
             <button onClick={prevStep} className="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-3 rounded-lg transition duration-200">Back</button>
             <button 
@@ -82,16 +153,34 @@ const RegisterPage = () => {
         // Step 2 Fields
         addressHouseNo: '',
         addressProvince: '',
-        addressDetail: '', 
+        addressDistrict: '',
+        addressSubDistrict: '',
+        addressZipCode: '',
+        addressDetail: '',
 
         // Step 3 Field
         userRole: 'RENTER',
     });
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { status, error, isRegistered } = useSelector((state) => state.user);
 
-    // ... (useEffect, handleChange, nextStep, prevStep functions)
+    // จัดการ Popup และ Redirect
+    useEffect(() => {
+        if (status === 'error' && error) {
+            // แจ้งเตือนเมื่อลงทะเบียนไม่สำเร็จ
+            alert(`Registration Failed: ${error}`);
+        }
+        
+        if (isRegistered) {
+            // แจ้งเตือนเมื่อลงทะเบียนสำเร็จ
+            alert("Registration Successful! Please log in with your new account.");
+            
+            // พาผู้ใช้ไปหน้า Login
+            navigate('/login');
+        }
+    }, [status, error, isRegistered, navigate]); // ตรวจสอบสถานะ
     
     const nextStep = () => {
         setStep(step + 1);
@@ -108,19 +197,26 @@ const RegisterPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+
+        // ตรวจสอบขั้นสุดท้ายก่อนส่ง (Frontend Validation)
+        if (!formData.username || !formData.password || !formData.email || !formData.phone) {
+            alert('Please fill out all required fields in Step 1.');
+            return; 
+        }
         
         // 1. รวมข้อมูล (Mapping to UserDto/Entity)
         const userDto = {
-            // Backend fields (Username ต้องไม่ว่าง)
+            // Backend fields 
             username: formData.username,
             email: formData.email,
             password: formData.password,
             phone: formData.phone,
             
-            // รวม First/Last name เป็น name
+            // name 
             name: `${formData.firstName} ${formData.lastName}`,
             
-            address: `${formData.addressHouseNo}, ${formData.addressProvince}, ${formData.addressDetail}`,
+            // address (รวมข้อมูลละเอียดทั้งหมด)
+            address: `เลขที่ ${formData.addressHouseNo}, ต.${formData.addressSubDistrict}, อ.${formData.addressDistrict}, จ.${formData.addressProvince} ${formData.addressZipCode}. ${formData.addressDetail}`,
             userRole: formData.userRole,
         };
         
@@ -148,7 +244,6 @@ const RegisterPage = () => {
 
     return (
         <AuthLayout title={title}>
-            {error && <p className="text-red-500 text-center mb-3">Error: {error}</p>}
             {renderStep()}
         </AuthLayout>
     );
