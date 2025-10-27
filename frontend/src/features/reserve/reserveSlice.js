@@ -1,34 +1,19 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { createReservation } from "./services/.exampleAPI";
-
-export const submitReservation = createAsyncThunk(
-  "reserve/submitReservation",
-  async (data) => {
-    const response = await createReservation(data);
-    return response.data;
-  }
-);
+import { createSlice } from "@reduxjs/toolkit";
 
 const reserveSlice = createSlice({
-  name: "reserve",
-  initialState: {
-    reservation: null,
-    status: "idle",
-  },
-  reducers: {},
-  extraReducers: (builder) => {
-    builder
-      .addCase(submitReservation.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(submitReservation.fulfilled, (state, action) => {
-        state.status = "succeeded";
-        state.reservation = action.payload;
-      })
-      .addCase(submitReservation.rejected, (state) => {
-        state.status = "failed";
-      });
+  name: "reserves",
+  initialState: [],
+  reducers: {
+    setReserves: (state, action) => {
+      return action.payload; // เก็บข้อมูลการจองทั้งหมด
+    },
+    updateReserveStatus: (state, action) => {
+      const { reserveId, status } = action.payload;
+      const target = state.find((r) => r.id === reserveId);
+      if (target) target.status = status;
+    },
   },
 });
 
-export default reserveSlice.reducer; 
+export const { setReserves, updateReserveStatus } = reserveSlice.actions;
+export default reserveSlice.reducer;
