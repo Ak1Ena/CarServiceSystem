@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { login } from '../userSlice';
 import AuthLayout from '../components/authlayout'; 
-// import { useNavigate } from 'react-router-dom';
 
 const LoginPage = () => {
     const [credentials, setCredentials] = useState({
@@ -12,12 +11,10 @@ const LoginPage = () => {
 
     const dispatch = useDispatch();
     const { status, error, user } = useSelector((state) => state.user);
-    // const navigate = useNavigate();
 
     useEffect(() => {
         if (status === 'success' && user) {
             alert(`ยินดีต้อนรับ, ${user.name || user.username}!`);
-            // navigate('/home'); 
         }
     }, [status, user]);
 
@@ -46,7 +43,6 @@ const LoginPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    {/* ใช้ name="username" และ Placeholder "Username" */}
                     <input
                         type="text"
                         name="username"
@@ -54,7 +50,7 @@ const LoginPage = () => {
                         value={credentials.username}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                     />
                 </div>
                 <div>
@@ -65,7 +61,7 @@ const LoginPage = () => {
                         value={credentials.password}
                         onChange={handleChange}
                         required
-                        className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
                     />
                 </div>
 
@@ -74,7 +70,7 @@ const LoginPage = () => {
                     disabled={status === 'loading'}
                     className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition duration-200 disabled:opacity-50"
                 >
-                    Sign in with username
+                    Sign in
                 </button>
             </form>
         </AuthLayout>
