@@ -4,19 +4,67 @@ import { register } from '../userSlice';
 import AuthLayout from '../components/authlayout'; 
 import { useNavigate } from 'react-router-dom';
 
-// Step 1: Create your ID (First Name, Last Name, Email, Password, PHONE, USERNAME)
+// Step 1: Create your ID
 const Step1ID = ({ formData, handleChange, nextStep }) => (
     <div className="space-y-4">
         <div className="flex space-x-4">
-            <input type="text" name="firstName" placeholder="First name" value={formData.firstName} onChange={handleChange} required className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
-            <input type="text" name="lastName" placeholder="Last name" value={formData.lastName} onChange={handleChange} required className="w-1/2 px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
+            <input 
+                type="text" 
+                name="firstName" 
+                placeholder="First name" 
+                value={formData.firstName} 
+                onChange={handleChange} 
+                required 
+                className="w-1/2 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+            />
+            <input 
+                type="text" 
+                name="lastName" 
+                placeholder="Last name" 
+                value={formData.lastName} 
+                onChange={handleChange} 
+                required 
+                className="w-1/2 px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+            />
         </div>
         
-        <input type="text" name="username" placeholder="Username (for login)" value={formData.username} onChange={handleChange} required className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
+        <input 
+            type="text" 
+            name="username" 
+            placeholder="Username (for login)" 
+            value={formData.username} 
+            onChange={handleChange} 
+            required 
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+        />
         
-        <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
-        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
-        <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required className="w-full px-4 py-3 bg-gray-50 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" />
+        <input 
+            type="tel" 
+            name="phone" 
+            placeholder="Phone Number" 
+            value={formData.phone} 
+            onChange={handleChange} 
+            required 
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+        />
+        <input 
+            type="email" 
+            name="email" 
+            placeholder="Email" 
+            value={formData.email} 
+            onChange={handleChange} 
+            required 
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500"
+        />
+        <input 
+            type="password" 
+            name="password" 
+            placeholder="Password" 
+            value={formData.password} 
+            onChange={handleChange} 
+            required 
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500" 
+        />
         <button onClick={nextStep} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition duration-200">Continue</button>
     </div>
 );
@@ -33,7 +81,7 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
                 value={formData.addressHouseNo} 
                 onChange={handleChange} 
                 required 
-                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
             />
             
             <input 
@@ -43,7 +91,7 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
                 value={formData.addressProvince} 
                 onChange={handleChange} 
                 required 
-                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
             />
         </div>
 
@@ -56,7 +104,7 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
                 value={formData.addressDistrict} 
                 onChange={handleChange} 
                 required 
-                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
             />
             
             <input 
@@ -66,7 +114,7 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
                 value={formData.addressSubDistrict} 
                 onChange={handleChange} 
                 required 
-                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-1/2 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
             />
         </div>
         
@@ -77,7 +125,7 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
             value={formData.addressZipCode} 
             onChange={handleChange} 
             required 
-                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
+                className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" 
         />
 
         <textarea 
@@ -85,7 +133,7 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
             placeholder="ข้อมูลเพิ่มเติม (เช่น ชื่ออาคาร หรือรายละเอียดซอย)" 
             value={formData.addressDetail} 
             onChange={handleChange} 
-            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 text-gray-500 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" 
+            className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" 
             rows="3">
         </textarea>
         
