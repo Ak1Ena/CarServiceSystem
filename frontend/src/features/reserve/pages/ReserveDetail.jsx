@@ -30,40 +30,6 @@ function ReserveDetail() {
 
   return (
     <div className="flex min-h-screen bg-[#1c1c1c] text-white">
-      {/* 🔹 Sidebar */}
-      <aside className="w-60 bg-[#8B0000] flex flex-col p-6 text-sm">
-        <h2 className="text-gray-200 mb-6 text-lg font-semibold">Menu</h2>
-        <button
-          onClick={() => navigate("/cars")}
-          className="text-left mb-3 hover:text-white text-gray-300"
-        >
-          🚗 Add car
-        </button>
-        <button
-          onClick={() => navigate("/cars/edit")}
-          className="text-left mb-3 hover:text-white text-gray-300"
-        >
-          ✏️ Edit car
-        </button>
-        <button
-          onClick={() => navigate("/reservations")}
-          className="text-left mb-3 hover:text-white text-white font-semibold"
-        >
-          📅 Accept reservation
-        </button>
-        <button
-          onClick={() => navigate("/payments")}
-          className="text-left mb-3 hover:text-white text-gray-300"
-        >
-          💳 Confirm payment
-        </button>
-        <button
-          onClick={() => navigate("/about")}
-          className="text-left hover:text-white text-gray-300"
-        >
-          ℹ️ About
-        </button>
-      </aside>
 
       {/* 🔹 Main content */}
       <main className="flex-1 p-12 flex flex-col items-center">
