@@ -12,7 +12,7 @@ export default configureStore({
         // car:carReducer,
         // user:userReducer,
         payment: paymentReducer,
-        // receipt: receiptReducer,
+        receipt: receiptReducer,
         // payment: paymentReducer,
         receipt: receiptReducer,
         // reserve: reserveReducer,

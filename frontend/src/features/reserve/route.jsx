@@ -1,13 +1,12 @@
-import React from "react";
-import { Route, Routes } from "react-router-dom";
-import ReservationCheckout from "./pages/ReservationCheckout";
+import { Routes, Route } from "react-router-dom";
+import ReserveList from "./pages/ReserveList";
+import ReserveDetail from "./pages/ReserveDetail";
 
-const ReserveRoutes = () => {
+export default function ReserveRoutes() {
   return (
     <Routes>
-      <Route path="/reserve/checkout" element={<ReservationCheckout />} />
+      <Route path="/" element={<ReserveList />} />
+      <Route path="/:id" element={<ReserveDetail />} />
     </Routes>
-  );
-};
-
-export default ReserveRoutes;
+  )
+}
