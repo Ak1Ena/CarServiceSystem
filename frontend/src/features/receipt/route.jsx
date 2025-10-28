@@ -11,6 +11,7 @@ export default function AppRoutes() {
         <Routes>
             <Route path="/:userId" element={<ReceiptPage />} />
             <Route path="/" element={<h1>Welcome to Car Service System!</h1>} />
+            <Route path="/receipts" element={<ReceiptList />} />
         </Routes>
     );
 };
