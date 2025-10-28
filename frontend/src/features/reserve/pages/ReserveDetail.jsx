@@ -19,9 +19,19 @@ function ReserveDetail() {
 
   async function confirmReserve() {
     try {
-      const res = await axios.patch(`http://localhost:8086/reservations/${id}/confirm`);
+      const res = await axios.patch(`http://localhost:8084/reservations/${id}/confirm`);
       dispatch(updateReserveStatus({ reserveId: id, status: res.data.status }));
-      navigate("/reservations");
+
+      // อ่าน role จาก localStorage
+      const userRole = localStorage.getItem("UserRole");
+
+      if (userRole === "user") {
+        // ไปหน้า Summary หลังยืนยัน
+        navigate(`/reservations/${id}/summary`);
+      } else {
+        // owner แค่เห็นสถานะอัปเดต
+        navigate("/reservations");
+      }
     } catch (err) {
       console.error("Confirm failed:", err);
       alert("Confirm failed");

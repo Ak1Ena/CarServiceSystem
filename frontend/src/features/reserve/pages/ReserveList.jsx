@@ -15,7 +15,7 @@ function ReserveList() {
     async function fetchReserves() {
       setIsLoading(true);
       try {
-        const res = await axios.get("http://localhost:8086/reservations");
+        const res = await axios.get("http://localhost:8084/reservations");
 
         dispatch(setReserves(res.data));
       } catch (err) {
