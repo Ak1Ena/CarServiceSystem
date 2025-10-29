@@ -28,9 +28,9 @@ const ReceiptList = () => {
     fetchReceipts();
   }, []);
 
-  if (status) return <p className="text-white text-center text-xl mt-10">กำลังโหลดใบเสร็จ...</p>;
+  if (status === "loading") return <p className="text-white text-center text-xl mt-10">กำลังโหลดใบเสร็จ...</p>;
   if (!userId) return <p className="text-white text-center text-xl mt-10">ไม่พบรหัสผู้ใช้</p>;
-
+ 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-6">
       <h2 className="text-3xl font-semibold mb-6 text-center">
