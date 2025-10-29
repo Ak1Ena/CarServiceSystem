@@ -15,6 +15,7 @@ function ReserveList() {
     async function fetchReserves() {
       setIsLoading(true);
       try {
+        // ✅ backend endpoint
         const res = await axios.get(`http://localhost:8084/reserves`);
         console.log(res.data);
         dispatch(setReserves(res.data));
@@ -30,7 +31,9 @@ function ReserveList() {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-50 py-16">
-      <h1 className="text-2xl font-semibold mb-10 text-gray-800">Reservation List</h1>
+      <h1 className="text-2xl font-semibold mb-10 text-gray-800">
+        Reservation List
+      </h1>
 
       <div className="flex flex-col gap-6 w-full max-w-3xl">
         {isLoading ? (
@@ -40,9 +43,9 @@ function ReserveList() {
             <ReserveCard
               key={reserve.id}
               id={reserve.id}
-              title={`Reserve for ${reserve.car?.model ?? "-"}`}
-              desc={`Renter: ${reserve.user?.name ?? "-"}, Status: ${reserve.status}`}
-              status={reserve.status}
+              title={`Reserve #${reserve.id}`} // เปลี่ยนจาก car.model
+              desc={`Car ID: ${reserve.carId}, User ID: ${reserve.userId}`} // เปลี่ยน
+              status={reserve.status ?? "-"}
             />
           ))
         ) : (

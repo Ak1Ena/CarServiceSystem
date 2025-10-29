@@ -19,18 +19,20 @@ function ReserveDetail() {
 
   async function confirmReserve() {
     try {
-      const res = await axios.patch(`http://localhost:8084/reserve/${id}/confirm`);
+      // ✅ แก้ endpoint ให้ตรง backend
+      const res = await axios.patch(`http://localhost:8084/reserves/${id}`, {
+        status: "CONFIRMED",
+      });
+
       dispatch(updateReserveStatus({ reserveId: id, status: res.data.status }));
 
       // อ่าน role จาก localStorage
       const userRole = localStorage.getItem("UserRole");
 
       if (userRole === "user") {
-        // ไปหน้า Summary หลังยืนยัน
-        navigate(`/reservations/${id}/summary`);
+        navigate(`/reserves/${id}/summary`); // user ไปหน้า summary
       } else {
-        // owner แค่เห็นสถานะอัปเดต
-        navigate("/reservations");
+        navigate("/reserves"); // owner กลับหน้า list
       }
     } catch (err) {
       console.error("Confirm failed:", err);
@@ -40,8 +42,6 @@ function ReserveDetail() {
 
   return (
     <div className="flex min-h-screen bg-[#1c1c1c] text-white">
-
-      {/* 🔹 Main content */}
       <main className="flex-1 p-12 flex flex-col items-center">
         <div className="w-full max-w-4xl bg-[#2b2b2b] p-10 rounded-2xl shadow-lg">
           <h1 className="text-2xl font-semibold mb-8">Checkout</h1>
@@ -50,14 +50,14 @@ function ReserveDetail() {
             <div>
               <p className="mb-2 text-sm text-gray-400">Primary driver</p>
               <input
-                value={reserve.user?.name ?? "-"}
+                value={reserve.userId} // ใช้ userId แทน user.name
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
               <p className="mt-4 mb-2 text-sm text-gray-400">Car Model</p>
               <input
-                value={reserve.car?.model ?? "Unknown"}
+                value={reserve.carId} // ใช้ carId แทน car.model
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
@@ -86,12 +86,8 @@ function ReserveDetail() {
                 </div>
                 <div className="w-20 h-20 bg-gray-300" /> {/* placeholder รูปรถ */}
               </div>
-              <p className="text-sm mb-2">
-                Driver: {reserve.user?.name ?? "-"}
-              </p>
-              <p className="text-sm mb-2">
-                Car: {reserve.car?.model ?? "-"}
-              </p>
+              <p className="text-sm mb-2">Driver: {reserve.userId}</p>
+              <p className="text-sm mb-2">Car: {reserve.carId}</p>
               <p className="text-sm mb-2">Date: {reserve.date ?? "-"}</p>
               <p className="text-sm mb-2">Status: {reserve.status}</p>
             </div>

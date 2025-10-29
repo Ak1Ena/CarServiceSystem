@@ -23,15 +23,15 @@ export default function ReserveSummary() {
 
         <div className="bg-gray-700 p-6 rounded-lg space-y-4">
           <p><strong>Reservation ID:</strong> #{reserve.id}</p>
-          <p><strong>ผู้จอง:</strong> {reserve.user?.name ?? "-"}</p>
-          <p><strong>รถ:</strong> {reserve.car?.model ?? "-"}</p>
+          <p><strong>ผู้จอง:</strong> User ID: {reserve.userId}</p>
+          <p><strong>รถ:</strong> Car ID: {reserve.carId}</p>
           <p><strong>วันที่:</strong> {reserve.date ?? "-"}</p>
           <p><strong>สถานะ:</strong> {reserve.status}</p>
         </div>
 
         <div className="flex justify-center mt-8">
           <button
-            onClick={() => navigate("/reserves")}
+            onClick={() => navigate("/reserves")} // แก้ path ให้ตรงกับ list
             className="px-6 py-2 bg-blue-600 rounded hover:bg-blue-700"
           >
             กลับไปหน้ารายการจอง
