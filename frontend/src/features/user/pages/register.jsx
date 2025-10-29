@@ -223,7 +223,7 @@ const RegisterPage = () => {
 
             // Redirect หลังแจ้งเตือน
             setTimeout(() => {
-                navigate('/login');
+                navigate('/users/login');
             }, 2000); 
         }
     }, [status, error, isRegistered, navigate]); // ตรวจสอบสถานะ
