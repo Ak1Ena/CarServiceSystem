@@ -88,8 +88,8 @@ const ReceiptComponent = ({ receiptData }) => {
             </div>
 
             <div className="mt-12 pt-4 flex justify-between text-sm border-t border-gray-300">
-                <p className="w-5/12 text-center">_________________________</p>
-                <p className="w-5/12 text-center">_________________________</p>
+                <p className="w-5/12 text-center">______________________</p>
+                <p className="w-5/12 text-center">______________________</p>
             </div>
             <div className="flex justify-between text-sm">
                 <p className="w-5/12 text-center">(ผู้รับบริการ)</p>

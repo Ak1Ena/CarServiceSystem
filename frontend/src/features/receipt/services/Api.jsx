@@ -18,7 +18,6 @@ export const fetchReceiptsByUserId = createAsyncThunk(
       return [];
     } catch (error) {
       return rejectWithValue(error.message);
-    }
+    }                                                                                                                 
   }
 );
-
