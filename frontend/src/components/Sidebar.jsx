@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 export default function Sidebar({ open, toggleSidebar }) {
 
-  const role = localStorage.getItem("UserRole") || "OWNER";
+  const role = localStorage.getItem("userRole") || "OWNER";
   const ownerBar = [
     { name: "Add Car", icon: "", link: "/cars/add-car" },
     { name: "Edit Car", icon: "", link: "/cars/edit-car" },

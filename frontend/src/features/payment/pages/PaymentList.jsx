@@ -18,7 +18,7 @@ function PaymentList() {
             dispatch(getPaymentsByOwner(ownerId));
         }
     }, [dispatch, ownerId]);
-    console.log(loading)
+    console.log(list)
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-[#1e1e1e] py-16">
@@ -41,7 +41,7 @@ function PaymentList() {
                             car.reserves.map((reserve) => (
                                 <PaymentCard
                                     img={car.car.img1}
-                                    key={reserve.payment.paymentId}
+                                    key={reserve.payment?.paymentId}
                                     id={reserve.payment.paymentId}
                                     title={`Payment for ${car.car.model} (${car.car.plateNumber})`}
                                     desc={`Renter: ${reserve.renter.name}, Amount: ${reserve.payment.grandTotal}, Status: ${reserve.payment.status}`}
