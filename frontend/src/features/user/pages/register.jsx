@@ -131,7 +131,7 @@ const Step2Address = ({ formData, handleChange, prevStep, nextStep }) => (
 
         <textarea 
             name="addressDetail" 
-            placeholder="ข้อมูลเพิ่มเติม (เช่น ชื่ออาคาร หรือรายละเอียดซอย)" 
+            placeholder="ข้อมูลเพิ่มเติม (เช่น ชื่ออาคาร ถนนที่ใกล้เคียง ฯลฯ)" 
             value={formData.addressDetail} 
             onChange={handleChange} 
             className="w-full px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-none" 

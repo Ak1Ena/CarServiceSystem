@@ -28,7 +28,7 @@ const LoginPage = () => {
             setTimeout(() => {
             }, 2000);
         }
-    }, [status,error, user, navigator]);
+    }, [status,error, user]);
 
     const handleChange = (e) => {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -57,7 +57,7 @@ const LoginPage = () => {
                 onClose={() => setMessage(null)} 
             />
 
-            <AuthLayout title="Login to your account">
+            <AuthLayout title="Welcome Back!" subtitle="Sign in to your account">
                 {status === 'loading' && <p className="text-blue-500 text-center mb-3">กำลังเข้าสู่ระบบ...</p>}
                 {error && <p className="text-red-500 text-center mb-3">Error: {error}</p>}
 
