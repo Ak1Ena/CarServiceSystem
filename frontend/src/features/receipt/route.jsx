@@ -11,7 +11,7 @@ import {
 export default function AppRoutes() {
     return (
         <Routes>
-            <Route path="/:userId" element={<ReceiptPage />} />
+            <Route path="/:receiptId" element={<ReceiptPage />} />
             <Route path="/" element={<ReceiptList />} />
         </Routes>
     );

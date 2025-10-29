@@ -6,8 +6,8 @@ import { fetchReceiptsByUserId } from '../services/Api.jsx';
 const VAT_RATE = 0.07;
 
 const ReceiptComponent = ({ receiptData }) => {
-  const { receipt = {}, reserve = {}, user: customer = '', owner = '', car = {} } = receiptData;
-  const items = receipt.items || [];
+    const { receipt = {}, reserve = {}, user: customer = '', owner = '', car = {} } = receiptData;
+    const items = receipt.items || [];
 
     const formatCurrency = (value) => {
         return (value || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -103,21 +103,16 @@ const ReceiptPage = () => {
 
     const dispatch = useDispatch();
 
-    const {data, status, error} = useSelector((state) => state.receipt);
+    const { data, status, error } = useSelector((state) => state.receipt);
 
-    const { userId } = useParams();
-    const userIdToFetch = userId || 1;
-    useEffect(() => {
-        if (userIdToFetch) {
-            dispatch(fetchReceiptsByUserId(userIdToFetch));
-        }
-    }, [dispatch, userIdToFetch]);
-
-
+    const { receiptId } = useParams();
+    const receiptToFetch = receiptId || 1;
+ 
     const displayReceipt = useMemo(() => {
-        return data?.length > 0 ? data[0] : null;
-    }, [data]);
+        if (!data || data.length === 0) return null;
+        return data.find(r => r.receipt?.receiptId.toString() === receiptId) || null;
 
+    }, [data, receiptId]);
     if (status === 'loading') {
         return <div className="flex justify-center items-center h-screen bg-gray-100">กำลังโหลดข้อมูลใบเสร็จ...</div>;
     }
@@ -129,7 +124,7 @@ const ReceiptPage = () => {
     }
 
     if (!displayReceipt) {
-        return <div className="flex justify-center items-center h-screen bg-gray-100">ไม่พบข้อมูลใบเสร็จสำหรับผู้ใช้ ID: {userIdToFetch}</div>;
+        return <div className="flex justify-center items-center h-screen bg-gray-100">ไม่พบข้อมูลใบเสร็จสำหรับผู้ใช้ ID: {receiptToFetch}</div>;
     }
 
     return (
