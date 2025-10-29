@@ -17,7 +17,8 @@ function PaymentList() {
         if (ownerId && (!list || list.length === 0)) {
             dispatch(getPaymentsByOwner(ownerId));
         }
-    }, [dispatch, list, ownerId]);
+    }, [dispatch, ownerId]);
+    console.log(loading)
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-[#1e1e1e] py-16">

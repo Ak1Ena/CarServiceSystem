@@ -25,13 +25,13 @@ const receiptSlice = createSlice({
      
       .addCase(fetchReceiptsByUserId.rejected, (state, action) => {
         state.status = 'failed';
-        state.error = action.payload || 'Failed to fetch data'; 
+        state.error = action.payload|| action.error.message || 'Failed to fetch data'; 
       });
   },
 });
 
-export const selectReceipts = (state) => state.receipts?.data;
-export const selectStatus = (state) => state.receipts?.status;
-export const selectError = (state) => state.receipts?.error;
+// export const selectReceipts = (state) => state.receipts?.data;
+// export const selectStatus = (state) => state.receipts?.status;
+// export const selectError = (state) => state.receipts?.error;
 
 export default receiptSlice.reducer;
