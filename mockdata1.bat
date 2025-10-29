@@ -29,7 +29,7 @@ IF ERRORLEVEL 1 (
     echo Creating User 2...
     curl -X POST http://localhost:8085/users ^
     -H "Content-Type: application/json" ^
-    -d "{\"username\":\"renter\",\"email\":\"renter@example.com\",\"password\":\"password123\",\"status\":\"ACTIVE\",\"phone\":\"0898765432\",\"address\":\"456 Rent Road\",\"role\":\"USER\",\"name\":\"Renter User\",\"firstName\":\"Renter\",\"lastName\":\"User\"}"
+    -d "{\"username\":\"renter\",\"email\":\"renter@example.com\",\"password\":\"password123\",\"status\":\"ACTIVE\",\"phone\":\"0898765432\",\"address\":\"456 Rent Road\",\"role\":\"RENTER\",\"name\":\"Renter User\",\"firstName\":\"Renter\",\"lastName\":\"User\"}"
 ) ELSE (
     echo User 2 already exists, skipping...
 )
