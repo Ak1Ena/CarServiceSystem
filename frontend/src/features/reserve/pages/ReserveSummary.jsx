@@ -31,7 +31,7 @@ export default function ReserveSummary() {
 
         <div className="flex justify-center mt-8">
           <button
-            onClick={() => navigate("/reservations")}
+            onClick={() => navigate("/reserves")}
             className="px-6 py-2 bg-blue-600 rounded hover:bg-blue-700"
           >
             กลับไปหน้ารายการจอง

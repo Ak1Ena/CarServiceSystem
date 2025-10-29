@@ -19,7 +19,7 @@ function ReserveDetail() {
 
   async function confirmReserve() {
     try {
-      const res = await axios.patch(`http://localhost:8084/reservations/${id}/confirm`);
+      const res = await axios.patch(`http://localhost:8084/reserve/${id}/confirm`);
       dispatch(updateReserveStatus({ reserveId: id, status: res.data.status }));
 
       // อ่าน role จาก localStorage
