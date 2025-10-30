@@ -14,11 +14,11 @@ function PaymentList() {
     const { list, loading, error } = useSelector((state) => state.payment);
 
     useEffect(() => {
-        if (ownerId && (!list || list.length === 0)) {
+        if (ownerId && !loading && (!list || list.length === 0)) {
             dispatch(getPaymentsByOwner(ownerId));
         }
+
     }, [dispatch, ownerId]);
-    console.log(list)
 
     return (
         <div className="flex flex-col items-center min-h-screen bg-[#1e1e1e] py-16">

@@ -8,7 +8,7 @@ export default function Sidebar({ open, toggleSidebar }) {
     { name: "Edit Car", icon: "", link: "/cars/edit-car" },
     { name: "Accept Reservation", icon: "", link: "/reservations/accept-reservation" },
     { name: "Confirm Payment", icon: "", link: "/payments" },
-    { name: "About Us", icon: "", link: "/about-us" },
+    { name: "About Us", icon: "", link: "/about" },
   ]
   const renterBar = [
     { name: "Reservations", icon: "", link: "/reservations" },
