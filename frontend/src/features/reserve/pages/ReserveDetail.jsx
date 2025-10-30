@@ -9,7 +9,7 @@ function ReserveDetail() {
   const dispatch = useDispatch();
 
   const reserve = useSelector((state) =>
-    state.reserve.find((r) => r.id?.toString() === id)
+    state.reserves?.items?.find((r) => r.id?.toString() === id)
   );
 
   if (!reserve)
@@ -19,20 +19,18 @@ function ReserveDetail() {
 
   async function confirmReserve() {
     try {
-      // ✅ แก้ endpoint ให้ตรง backend
       const res = await axios.patch(`http://localhost:8084/reserves/${id}`, {
         status: "CONFIRMED",
       });
 
       dispatch(updateReserveStatus({ reserveId: id, status: res.data.status }));
 
-      // อ่าน role จาก localStorage
       const userRole = localStorage.getItem("UserRole");
 
       if (userRole === "user") {
-        navigate(`/reserves/${id}/summary`); // user ไปหน้า summary
+        navigate(`/reserves/${id}/summary`);
       } else {
-        navigate("/reserves"); // owner กลับหน้า list
+        navigate("/reserves");
       }
     } catch (err) {
       console.error("Confirm failed:", err);
@@ -50,14 +48,14 @@ function ReserveDetail() {
             <div>
               <p className="mb-2 text-sm text-gray-400">Primary driver</p>
               <input
-                value={reserve.userId} // ใช้ userId แทน user.name
+                value={reserve.userId}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
               <p className="mt-4 mb-2 text-sm text-gray-400">Car Model</p>
               <input
-                value={reserve.carId} // ใช้ carId แทน car.model
+                value={reserve.carId}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
@@ -77,14 +75,13 @@ function ReserveDetail() {
               />
             </div>
 
-            {/* ใบสรุปด้านขวา */}
             <div className="bg-[#d1d1d1] text-black rounded-lg p-6">
               <div className="flex justify-between mb-4">
                 <div>
                   <p className="font-semibold">Reservation Summary</p>
                   <p className="text-sm">#{reserve.id}</p>
                 </div>
-                <div className="w-20 h-20 bg-gray-300" /> {/* placeholder รูปรถ */}
+                <div className="w-20 h-20 bg-gray-300" />
               </div>
               <p className="text-sm mb-2">Driver: {reserve.userId}</p>
               <p className="text-sm mb-2">Car: {reserve.carId}</p>
