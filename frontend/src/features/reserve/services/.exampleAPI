@@ -1,8 +1,7 @@
 const API_URL = "http://localhost:5000/api";
 
-// สร้างใบจองใหม่
-export async function createReservation(data) {
-  const res = await fetch(`${API_URL}/reservation`, {
+export async function loginUser(data) {
+  const res = await fetch(`${API_URL}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
@@ -10,32 +9,11 @@ export async function createReservation(data) {
   return res.json();
 }
 
-// ดึงข้อมูลการจองทั้งหมด
-export async function getReservations() {
-  const res = await fetch(`${API_URL}/reservation`);
-  return res.json();
-}
-
-// ดึงข้อมูลการจองตาม id
-export async function getReservationById(id) {
-  const res = await fetch(`${API_URL}/reservation/${id}`);
-  return res.json();
-}
-
-// แก้ไขการจอง
-export async function updateReservation(id, data) {
-  const res = await fetch(`${API_URL}/reservation/${id}`, {
-    method: "PUT",
+export async function registerUser(data) {
+  const res = await fetch(`${API_URL}/auth/register`, {
+    method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
-  });
-  return res.json();
-}
-
-// ยกเลิก (ลบ) การจอง
-export async function deleteReservation(id) {
-  const res = await fetch(`${API_URL}/reservation/${id}`, {
-    method: "DELETE",
   });
   return res.json();
 }
