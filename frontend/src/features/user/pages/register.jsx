@@ -204,7 +204,7 @@ const RegisterPage = () => {
         addressDetail: '',
 
         // Step 3 Field
-        userRole: 'RENTER',
+        role: 'RENTER',
     });
 
     const dispatch = useDispatch();
@@ -254,7 +254,7 @@ const RegisterPage = () => {
             
             name: `${formData.firstName} ${formData.lastName}`,
             address: `เลขที่ ${formData.addressHouseNo}, ต.${formData.addressSubDistrict}, อ.${formData.addressDistrict}, จ.${formData.addressProvince} ${formData.addressZipCode}. ${formData.addressDetail}`,
-            userRole: formData.userRole,
+            role: formData.role,
         };
         
         // 2. Dispatch Action
