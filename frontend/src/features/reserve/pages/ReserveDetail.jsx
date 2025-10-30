@@ -60,9 +60,16 @@ function ReserveDetail() {
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
-              <p className="mt-4 mb-2 text-sm text-gray-400">Date</p>
+              <p className="mt-4 mb-2 text-sm text-gray-400">Start Date</p>
               <input
-                value={reserve.date ?? "-"}
+                value={reserve.startDate ?? "-"}
+                readOnly
+                className="w-full bg-[#3a3a3a] rounded p-2"
+              />
+
+              <p className="mt-4 mb-2 text-sm text-gray-400">End Date</p>
+              <input
+                value={reserve.endDate ?? "-"}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
