@@ -8,7 +8,7 @@ import { getPaymentsByOwner } from "../services/Api";
 
 function PaymentList() {
 
-    const ownerId = localStorage.getItem("UserId") || 1;
+    const ownerId = localStorage.getItem("userId");
 
     const dispatch = useDispatch();
     const { list, loading, error } = useSelector((state) => state.payment);
@@ -39,6 +39,7 @@ function PaymentList() {
                     ) : list.length > 0 ? (
                         list.flatMap((car) =>
                             car.reserves.map((reserve) => (
+                                console.log(reserve),
                                 <PaymentCard
                                     img={car.car.img1}
                                     key={reserve.payment?.paymentId}
