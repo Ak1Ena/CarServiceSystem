@@ -2,16 +2,11 @@ import React from 'react';
 
 const AuthLayout = ({ title, children }) => {
   return (
-    <div style={{ 
-      maxWidth: '400px', 
-      margin: '50px auto', 
-      padding: '20px', 
-      border: '1px solid #ccc', 
-      borderRadius: '8px',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
-    }}>
-      <h2>{title}</h2>
-      {children}
+    <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="bg-white p-8 md:p-10 rounded-xl shadow-2xl w-full max-w-md">
+        <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">{title}</h2>
+        {children}
+      </div>
     </div>
   );
 };
