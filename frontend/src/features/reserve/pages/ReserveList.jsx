@@ -1,33 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
 import ReserveCard from "../components/ReserveCard";
-import { setReserves } from "../reserveSlice";
+import { getAllReserves } from "../services/Api.js";
 
 function ReserveList() {
   const dispatch = useDispatch();
-  const reserves = useSelector((state) => state.reserve);
-  const [isLoading, setIsLoading] = useState(false);
 
+  // ✅ ดึง state จาก Redux store
+  const { items: reserves, loading, error } = useSelector((state) => state.reserves);
+
+  // ✅ เรียก API เมื่อเปิดหน้า
   useEffect(() => {
-    if (reserves?.length > 0) return;
-
-    async function fetchReserves() {
-      setIsLoading(true);
-      try {
-        // ✅ backend endpoint
-        const res = await axios.get(`http://localhost:8084/reserves`);
-        console.log(res.data);
-        dispatch(setReserves(res.data));
-      } catch (err) {
-        console.error("Failed to fetch reserves:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchReserves();
-  }, [dispatch, reserves]);
+    dispatch(getAllReserves());
+  }, [dispatch]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-50 py-16">
@@ -36,15 +21,17 @@ function ReserveList() {
       </h1>
 
       <div className="flex flex-col gap-6 w-full max-w-3xl">
-        {isLoading ? (
+        {loading ? (
           <p>Loading...</p>
+        ) : error ? (
+          <p className="text-red-500">เกิดข้อผิดพลาด: {error}</p>
         ) : reserves?.length > 0 ? (
           reserves.map((reserve) => (
             <ReserveCard
               key={reserve.id}
               id={reserve.id}
-              title={`Reserve #${reserve.id}`} // เปลี่ยนจาก car.model
-              desc={`Car ID: ${reserve.carId}, User ID: ${reserve.userId}`} // เปลี่ยน
+              title={`Reserve #${reserve.id}`}
+              desc={`Car ID: ${reserve.carId}, User ID: ${reserve.userId}`}
               status={reserve.status ?? "-"}
             />
           ))
