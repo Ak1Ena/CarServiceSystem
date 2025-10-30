@@ -11,7 +11,7 @@ function ReserveCard({ id, title, desc, status }) {
     >
       <h3 className="text-lg font-semibold text-gray-800">{title}</h3>
       <p className="text-sm text-gray-600 mt-2">{desc}</p>
-      <p className="text-sm text-red-600 mt-2">Status: {status}</p>
+      <p className="text-sm text-red-600 mt-2">{status}</p>
     </div>
   );
 }

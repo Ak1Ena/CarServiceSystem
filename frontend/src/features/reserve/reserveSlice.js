@@ -20,11 +20,21 @@ const reserveSlice = createSlice({
       const { reserveId, status } = action.payload;
       const target = state.items.find((r) => r.id === Number(reserveId));
       if (target) target.status = status;
+
+      if (state.selectedReserve?.id === Number(reserveId)) {
+        state.selectedReserve.status = status;
+      }
+    },
+    removeReserve: (state, action) => {
+      const id = action.payload;
+      state.items = state.items.filter((r) => r.id !== Number(id));
+      if (state.selectedReserve?.id === Number(id)) {
+        state.selectedReserve = null;
+      }
     },
   },
   extraReducers: (builder) => {
     builder
-      // ✅ ดึงทั้งหมด
       .addCase(getAllReserves.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -38,29 +48,42 @@ const reserveSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ✅ ดึงตาม ID
+      .addCase(getReserveById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(getReserveById.fulfilled, (state, action) => {
+        state.loading = false;
         state.selectedReserve = action.payload;
       })
+      .addCase(getReserveById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
-      // ✅ อัปเดตสถานะ
       .addCase(patchReserveStatus.fulfilled, (state, action) => {
         const updated = action.payload;
         const index = state.items.findIndex((r) => r.id === updated.id);
         if (index !== -1) state.items[index] = updated;
+
+        if (state.selectedReserve?.id === updated.id) {
+          state.selectedReserve = updated;
+        }
       })
 
-      // ✅ เพิ่มใหม่
       .addCase(createReserve.fulfilled, (state, action) => {
         state.items.push(action.payload);
       })
 
-      // ✅ ลบ
       .addCase(deleteReserve.fulfilled, (state, action) => {
-        state.items = state.items.filter((r) => r.id !== action.payload);
+        const id = action.payload;
+        state.items = state.items.filter((r) => r.id !== id);
+        if (state.selectedReserve?.id === id) {
+          state.selectedReserve = null;
+        }
       });
   },
 });
 
-export const { updateReserveStatus } = reserveSlice.actions;
+export const { updateReserveStatus, removeReserve } = reserveSlice.actions;
 export default reserveSlice.reducer;

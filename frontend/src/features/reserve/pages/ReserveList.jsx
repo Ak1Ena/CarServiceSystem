@@ -6,10 +6,8 @@ import { getAllReserves } from "../services/Api.js";
 function ReserveList() {
   const dispatch = useDispatch();
 
-  // ✅ ดึง state จาก Redux store
   const { items: reserves, loading, error } = useSelector((state) => state.reserves);
 
-  // ✅ เรียก API เมื่อเปิดหน้า
   useEffect(() => {
     dispatch(getAllReserves());
   }, [dispatch]);
@@ -32,7 +30,7 @@ function ReserveList() {
               id={reserve.id}
               title={`Reserve #${reserve.id}`}
               desc={`Car ID: ${reserve.carId}, User ID: ${reserve.userId}`}
-              status={reserve.status ?? "-"}
+              status={`Status: ${reserve.status}`}
             />
           ))
         ) : (
