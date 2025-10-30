@@ -53,7 +53,7 @@ function PaymentDetail() {
     return (
         <div className="min-h-screen flex flex-col items-center py-12 ">
             <div className="rounded-2xl shadow-lg w-[800px] p-10 mb-8 flex flex-col border border-gray-100 bg-gray-50">
-                <h2 className="text-2xl font-bold text-red-700 mb-2">{car?.model ?? "Unknown Car"}</h2>
+                <h2 className="text-2xl font-bold text-red-700 mb-2">{car?.car.model ?? "Unknown Car"}</h2>
                 <p className="text-gray-700 mb-6">Price: {payment?.grandTotal ?? "-"} .-</p>
 
                 <div className="flex gap-8">
