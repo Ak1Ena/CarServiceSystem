@@ -1,5 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit"
-// import carReducer from "../features/car/carSlice.js"
+import carReducer from "../features/car/carSlice.js"
 // import userReducer from "../features/user/userSlice.js"
 import paymentReducer from "../features/payment/paymentSlice.js"
 import userReducer from "../features/user/userSlice.js"
@@ -11,7 +11,7 @@ import receiptReducer from "../features/receipt/receiptSlice.js"
 
 export default configureStore({
     reducer:{
-        // car:carReducer,
+        car:carReducer,
         user:userReducer,
         payment: paymentReducer,
         // receipt: receiptReducer,
