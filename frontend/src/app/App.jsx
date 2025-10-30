@@ -4,9 +4,9 @@ function App() {
 
   return (
     <>
-    <Container>
-      <AppRoutes />
-     </Container>
+      <Container>
+        <AppRoutes />
+      </Container>
     </>
   )
 }
