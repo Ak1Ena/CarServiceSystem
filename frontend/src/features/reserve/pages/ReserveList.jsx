@@ -5,8 +5,9 @@ import { getAllReserves } from "../services/Api.js";
 
 function ReserveList() {
   const dispatch = useDispatch();
-
-  const { items: reserves, loading, error } = useSelector((state) => state.reserves);
+  const { items: reserves, loading, error } = useSelector(
+    (state) => state.reserves
+  );
 
   useEffect(() => {
     dispatch(getAllReserves());
@@ -18,25 +19,19 @@ function ReserveList() {
         Reservation List
       </h1>
 
-      <div className="flex flex-col gap-6 w-full max-w-3xl">
-        {loading ? (
-          <p>Loading...</p>
-        ) : error ? (
-          <p className="text-red-500">เกิดข้อผิดพลาด: {error}</p>
-        ) : reserves?.length > 0 ? (
-          reserves.map((reserve) => (
-            <ReserveCard
-              key={reserve.id}
-              id={reserve.id}
-              title={`Reserve #${reserve.id}`}
-              desc={`Car ID: ${reserve.carId}, User ID: ${reserve.userId}`}
-              status={`Status: ${reserve.status}`}
-            />
-          ))
-        ) : (
-          <p className="text-gray-600">ไม่พบข้อมูลการจอง</p>
-        )}
-      </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">เกิดข้อผิดพลาด: {error}</p>
+      ) : reserves?.length === 0 ? (
+        <p className="text-gray-600">ไม่พบข้อมูลการจอง</p>
+      ) : (
+        <div className="flex flex-col gap-6 w-full max-w-4xl">
+          {reserves.map((reserve) => (
+            <ReserveCard key={reserve.id} reserve={reserve} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
