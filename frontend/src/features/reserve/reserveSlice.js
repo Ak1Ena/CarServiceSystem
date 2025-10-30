@@ -16,18 +16,15 @@ const reserveSlice = createSlice({
     error: null,
   },
   reducers: {
-    setReserves: (state, action) => {
-      state.items = action.payload;
-    },
     updateReserveStatus: (state, action) => {
       const { reserveId, status } = action.payload;
-      const target = state.items.find((r) => r.id === reserveId);
+      const target = state.items.find((r) => r.id === Number(reserveId));
       if (target) target.status = status;
     },
   },
   extraReducers: (builder) => {
     builder
-      // ✅ ดึงข้อมูลทั้งหมด
+      // ✅ ดึงทั้งหมด
       .addCase(getAllReserves.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -41,7 +38,7 @@ const reserveSlice = createSlice({
         state.error = action.payload;
       })
 
-      // ✅ ดึงข้อมูลตาม ID
+      // ✅ ดึงตาม ID
       .addCase(getReserveById.fulfilled, (state, action) => {
         state.selectedReserve = action.payload;
       })
@@ -53,17 +50,17 @@ const reserveSlice = createSlice({
         if (index !== -1) state.items[index] = updated;
       })
 
-      // ✅ เพิ่มการจองใหม่
+      // ✅ เพิ่มใหม่
       .addCase(createReserve.fulfilled, (state, action) => {
         state.items.push(action.payload);
       })
 
-      // ✅ ลบการจอง
+      // ✅ ลบ
       .addCase(deleteReserve.fulfilled, (state, action) => {
         state.items = state.items.filter((r) => r.id !== action.payload);
       });
   },
 });
 
-export const { setReserves, updateReserveStatus } = reserveSlice.actions;
+export const { updateReserveStatus } = reserveSlice.actions;
 export default reserveSlice.reducer;

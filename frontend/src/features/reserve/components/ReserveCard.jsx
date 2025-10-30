@@ -5,6 +5,7 @@ function ReserveCard({ id, title, desc, status }) {
 
   return (
     <div
+    
       onClick={() => navigate(`/reservations/${id}`)}
       className="cursor-pointer border p-6 rounded-xl bg-white shadow hover:shadow-lg transition"
     >

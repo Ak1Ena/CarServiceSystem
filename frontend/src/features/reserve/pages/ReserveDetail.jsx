@@ -1,17 +1,26 @@
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getReserveById,
+  patchReserveStatus,
+} from "../services/Api";
 import { updateReserveStatus } from "../reserveSlice";
-import axios from "axios";
 
 function ReserveDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const reserve = useSelector((state) =>
-    state.reserves?.items?.find((r) => r.id?.toString() === id)
+  const { selectedReserve: reserve, loading } = useSelector(
+    (state) => state.reserves
   );
 
+  useEffect(() => {
+    dispatch(getReserveById(id));
+  }, [dispatch, id]);
+
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
   if (!reserve)
     return (
       <div className="text-center mt-10 text-gray-600">ไม่พบข้อมูลการจอง</div>
@@ -19,14 +28,13 @@ function ReserveDetail() {
 
   async function confirmReserve() {
     try {
-      const res = await axios.patch(`http://localhost:8084/reserves/${id}`, {
-        status: "CONFIRMED",
-      });
+      const res = await dispatch(
+        patchReserveStatus({ reserveId: id, body: { status: "CONFIRMED" } })
+      ).unwrap();
 
-      dispatch(updateReserveStatus({ reserveId: id, status: res.data.status }));
+      dispatch(updateReserveStatus({ reserveId: id, status: res.status }));
 
       const userRole = localStorage.getItem("UserRole");
-
       if (userRole === "user") {
         navigate(`/reserves/${id}/summary`);
       } else {
@@ -92,7 +100,9 @@ function ReserveDetail() {
               </div>
               <p className="text-sm mb-2">Driver: {reserve.userId}</p>
               <p className="text-sm mb-2">Car: {reserve.carId}</p>
-              <p className="text-sm mb-2">Date: {reserve.date ?? "-"}</p>
+              <p className="text-sm mb-2">
+                Date: {reserve.startDate ?? "-"} → {reserve.endDate ?? "-"}
+              </p>
               <p className="text-sm mb-2">Status: {reserve.status}</p>
             </div>
           </div>
