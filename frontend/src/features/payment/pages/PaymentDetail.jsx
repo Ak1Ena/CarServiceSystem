@@ -1,35 +1,29 @@
-// src/pages/PaymentDetail.jsx
-import { useEffect, useState } from "react";
+import { useEffect, useState , useMemo} from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { setPayments } from "../paymentSlice";
-import { updatePaymentStatus } from "../paymentSlice";
 
+import { confirmPayment } from "../services/Api";
 function PaymentDetail() {
     const { id } = useParams(); // paymentId as string
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const payments = useSelector((state) => state.payment);
-    const [loading, setLoading] = useState(false);
-    const [actioning, setActioning] = useState(false);
+    const { list, loading, error } = useSelector((state) => state.payment);
 
-    // หา matched reserves จาก state (ตามโครงสร้าง controller)
-    const matched = (payments?.cars || []).flatMap((carNode) => {
-        const car = carNode?.car;
-        const reserves = Array.isArray(carNode?.reserves) ? carNode.reserves : [];
-        return reserves
-            .filter((rnode) => {
-                const payment = rnode?.payment;
-                return payment && payment.paymentId?.toString() === id;
-            })
-            .map((rnode) => ({ ...rnode, car }));
-    });
+    // const reserveObj = list.flatMap((carNode) => (carNode?.reserves || []).map((r) => ({ ...r, car: carNode }))).find((r) => r?.payment?.paymentId?.toString() === id) || null;
+    const reserveObj = useMemo(() => {
+        if (!list || list.length === 0) return null;
 
-    const reserveObj = matched.length > 0 ? matched[0] : null;
-
+        for (const carNode of list) {
+            const reserves = carNode?.reserves || [];
+            for (const reserve of reserves) {
+            if (reserve?.payment?.paymentId?.toString() === id) {
+                return { ...reserve, car: carNode };
+            }
+            }
+        }
+        return null;
+    }, [list, id]);
     if (!reserveObj) {
-        // ถ้าไม่มีข้อมูลใน redux — แสดงข้อความ (หรืออาจ fetch จาก backend เพิ่มเติม)
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-600">
                 <p>ไม่พบข้อมูลการชำระเงิน (paymentId: {id})</p>
@@ -38,56 +32,43 @@ function PaymentDetail() {
     }
 
     const { reserve, renter, payment, car } = reserveObj;
-
-    async function confirmPayment() {
-        console.log("Confirming payment for ID:", payment?.paymentId);
+    const handleConfirm = () => {
         if (!payment?.paymentId) return;
         if (payment.status === "PAID") return alert("Payment already confirmed.");
-        setActioning(true);
-        try {
-            const body = { paymentMethod: payment.paymentMethod ?? "CASH" };
-            const res = await axios.patch(`http://localhost:8086/payments/${payment.paymentId}/paid`, body);
-
-            // res.data = PaymentDto (จาก backend)
-            dispatch(
-                updatePaymentStatus({
-                    paymentId: res.data.paymentId,
-                    status: res.data.status,
-                    paymentMethod: res.data.paymentMethod,
-                    paidAt: res.data.paidAt,
-                })
-            );
-
-            navigate("/payments");
-        } catch (error) {
-            console.error("Confirm payment failed:", error);
-            alert("Confirm payment failed. See console.");
-        } finally {
-            setActioning(false);
-        }
+        dispatch(
+            confirmPayment({
+                paymentId: payment.paymentId,
+                body: { paymentMethod: payment.paymentMethod ?? "CASH" }
+            })
+        ).unwrap()
+            .then(() => {
+                navigate("/payments");
+            })
+            .catch((error) => {
+                console.error("Confirm payment failed:", error);
+                alert("Confirm payment failed. See console.");
+            });
     }
 
     return (
         <div className="min-h-screen flex flex-col items-center py-12 ">
             <div className="rounded-2xl shadow-lg w-[800px] p-10 mb-8 flex flex-col border border-gray-100 bg-gray-50">
-                <h2 className="text-2xl font-bold text-red-700 mb-2">{car?.model ?? "Unknown Car"}</h2>
+                <h2 className="text-2xl font-bold text-red-700 mb-2">{car?.car.model ?? "Unknown Car"}</h2>
                 <p className="text-gray-700 mb-6">Price: {payment?.grandTotal ?? "-"} .-</p>
 
                 <div className="flex gap-8">
                     <div className="bg-gray-200 w-60 h-60 rounded-sm overflow-hidden flex items-center justify-center">
-                        {car?.img1 ? (
-                            <img src={`data:image/jpeg;base64,${car.img1}`} alt={car.model} className="object-cover w-full h-full" />
+                        {car?.car?.img1 ? (
+                            <img src={`data:image/jpeg;base64,${car.car.img1}`} alt={car.car.model} className="object-cover w-full h-full" />
                         ) : (
                             <span className="text-gray-400 text-sm">No Image</span>
                         )}
                     </div>
 
                     <div className="flex flex-col justify-center text-black space-y-3">
-                        {/* <p><span className="font-semibold">OWNER:</span> {car?.userId ?? "-"}</p> */}
                         <p><span className="font-semibold">RENTER:</span> {renter?.name ?? "-"}</p>
-                        <p><span className="font-semibold">PickUp AT:</span> {car?.pickUp ?? "-"}</p>
+                        <p><span className="font-semibold">PickUp AT:</span> {car?.car?.pickUp ?? "-"}</p>
                         <p><span className="font-semibold">STATUS:</span> {payment?.status ?? "NO PAYMENT"}</p>
-                        {/* <p><span className="font-semibold">Payment ID:</span> {payment?.paymentId ?? "-"}</p> */}
                     </div>
                 </div>
 
@@ -95,17 +76,21 @@ function PaymentDetail() {
                     <button
                         onClick={() => navigate(-1)}
                         className=" px-4 py-2 rounded"
-                        disabled={actioning}
                     >
                         Back
                     </button>
 
                     <button
-                        onClick={() =>{ confirmPayment();}}
+                        onClick={() => { handleConfirm(); }}
                         className="bg-red-700 text-white px-5 py-2 rounded hover:bg-red-800 transition"
-                        disabled={actioning || !payment?.paymentId || payment?.status === "PAID"}
+                        disabled={loading || !payment?.paymentId || payment?.status === "PAID"}
                     >
-                        {actioning ? "Processing..." : (payment?.status === "PAID" ? "Already Paid" : "Confirm Payment")}
+                        {payment?.status === "PAID"
+                            ? "Already Paid"
+                            : loading
+                                ? "Processing..."
+                                : "Confirm Payment"
+                        }
                     </button>
                 </div>
             </div>

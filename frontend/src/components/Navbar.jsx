@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 
 export default function Navbar({ toggleSidebar }) {
-    const userRole = localStorage.getItem("UserRole") || "Unknown";
+    const userRole = localStorage.getItem("userRole") || "Unknown";
     const user = useSelector((state) => state.user);
     const username = user?.name || "UNKNOWN";
     return (

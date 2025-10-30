@@ -1,27 +1,51 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { getPaymentsByOwner, confirmPayment } from "./services/Api.js"
 
 const paymentSlice = createSlice({
   name: "payments",
-  initialState: [],
+  initialState: {
+    list: [],
+    loading: false,
+    error: null,
+  },
   reducers: {
-    setPayments: (state, action) => {
-      return action.payload; // เก็บข้อมูลทั้งหมดลง state
-    },
-    updatePaymentStatus: (state, action) => {
-      const { paymentId, status, paymentMethod, paidAt } = action.payload;
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(getPaymentsByOwner.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getPaymentsByOwner.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = action.payload;
+      })
+      .addCase(getPaymentsByOwner.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch payments";
+      })
+      .addCase(confirmPayment.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(confirmPayment.fulfilled, (state, action) => {
+        state.loading = false;
+        const updated = action.payload;
 
-      const carNode = state.cars.find((car) =>
-        car.reserves.some((r) => r.payment?.paymentId === paymentId)
-      );
-      if (!carNode) return;
-
-      const reserveNode = carNode.reserves.find((r) => r.payment?.paymentId === paymentId);
-      if (!reserveNode) return;
-
-      reserveNode.payment.status = status;
-      reserveNode.payment.paymentMethod = paymentMethod;
-      reserveNode.payment.paidAt = paidAt;
-    },
+        for (let carNode of state.list) {
+          const reserveNode = carNode.reserves.find(
+            (r) => r.payment?.paymentId === updated.paymentId
+          );
+          if (reserveNode) {
+            reserveNode.payment = { ...reserveNode.payment, ...updated };
+            break;
+          }
+        }
+      })
+      .addCase(confirmPayment.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to confirm payment";
+      })
   },
 });
 

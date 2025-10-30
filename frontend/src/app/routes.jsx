@@ -5,6 +5,7 @@ import PaymentRoutes from "../features/payment/route.jsx"
 import ReceiptRoutes from "../features/receipt/route.jsx"
 import ReserveRoutes from "../features/reserve/route.jsx"
 // import UserRoutes from "../features/user/route.jsx"
+import About from "../pages/About.jsx"
 export default function AppRoutes(){
     return (
         <Routes>
@@ -15,6 +16,7 @@ export default function AppRoutes(){
             <Route path="/reservations/*" element={<ReserveRoutes />}/>
             <Route path="/" element={<div>TESTING</div>}/>
             <Route path="*" element={<div>404 - Page Not Found</div>} /> 
+            <Route path="/about" element={<About />} />
         </Routes>
     )
 }

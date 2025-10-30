@@ -24,6 +24,13 @@ const ReceiptComponent = ({ receiptData }) => {
                 <h1 className="text-3xl font-bold uppercase">ใบเสร็จรับเงิน</h1>
                 <div className="text-right text-sm">
                     <p className="font-semibold text-lg">{ownerName}</p>
+    return (
+        <div className="w-full max-w-4xl bg-white p-10 shadow-lg border border-gray-200 text-gray-800">
+
+            <header className="flex justify-between items-start border-b-2 border-gray-800 pb-3 mb-6">
+                <h1 className="text-3xl font-bold uppercase">ใบเสร็จรับเงิน</h1>
+                <div className="text-right text-sm">
+                    <p className="font-semibold text-lg">{owner || 'Normaaaaa'}</p>
                     <p className="text-xs text-gray-500">Service Shop</p>
                 </div>
             </header>
@@ -108,6 +115,7 @@ const ReceiptComponent = ({ receiptData }) => {
 };
 
 const ReceiptPage = () => {
+
     const dispatch = useDispatch();
     const { data, status, error } = useSelector((state) => state.receipt);
     const { receiptId } = useParams();

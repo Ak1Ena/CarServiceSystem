@@ -1,13 +1,23 @@
 import React from "react";
 import { Link } from "react-router-dom";
 export default function Sidebar({ open, toggleSidebar }) {
-  
-  const role = localStorage.getItem("UserRole") || "OWNER";
+
+  const role = localStorage.getItem("userRole") || "OWNER";
+  const ownerBar = [
+    { name: "Add Car", icon: "", link: "/cars/add-car" },
+    { name: "Edit Car", icon: "", link: "/cars/edit-car" },
+    { name: "Accept Reservation", icon: "", link: "/reservations/accept-reservation" },
+    { name: "Confirm Payment", icon: "", link: "/payments" },
+    { name: "About Us", icon: "", link: "/about" },
+  ]
+  const renterBar = [
+    { name: "Reservations", icon: "", link: "/reservations" },
+    { name: "Receipts", icon: "", link: "/receipts" },
+  ]
   return (
     <div
-      className={`fixed top-0 left-0 h-full w-56 bg-red-700 text-white p-4 transform transition-transform duration-300 z-50 ${
-        open ? "translate-x-0" : "-translate-x-full"
-      }`}
+      className={`fixed top-0 left-0 h-full w-56 bg-red-700 text-white p-4 transform transition-transform duration-300 z-50 ${open ? "translate-x-0" : "-translate-x-full"
+        }`}
     >
       <button
         onClick={toggleSidebar}
@@ -15,46 +25,36 @@ export default function Sidebar({ open, toggleSidebar }) {
       >
         ←
       </button>
-      {
-        role === "OWNER" ? (
-          <ul className="space-y-4 text-sm">
-            <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition">
-              <span>📦</span>
-              <span>Add car</span>
-            </li>
-            <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition">
-              <span>🛠️</span>
-              <span>Edit car</span>
-            </li>
-            <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition">
-              <span>🛠️</span>
-              <span>Accept reservation</span>
-            </li>
-            <Link to="/payments" className="block">
-              <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition cursor-pointer">
-                <span>🛠️</span>
-                <span>Confirm Payment</span>
-              </li>
-            </Link>
+      <ul className="space-y-4 text-sm">
 
-            <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition">
-              <span>🛠️</span>
-              <span>About Us</span>
-            </li>
-          </ul>
-        ) : role === "RENTER" ? (
-          <ul className="space-y-4 text-sm">
-            <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition">
-              <span>📦</span>
-              <span>CAR LIST</span>
-            </li>
-            <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition">
-              <span>🛠️</span>
-              <span>Edit car</span>
-            </li>
-          </ul>
-        ) : null
-      }
+        {
+          role === "OWNER" ? (
+
+            ownerBar.map((item) => (
+              <Link to={item.link} className="block" key={item.name}>
+                <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition cursor-pointer">
+                  <span>{item.icon}</span>
+                  <span>{item.name}</span>
+                </li>
+              </Link>
+            ))
+
+
+          ) : role === "RENTER" ? (
+
+            renterBar.map((item) => (
+              <Link to={item.link} className="block" key={item.name}>
+                <li className="flex items-center space-x-2 hover:bg-red-800 p-2 rounded-md transition cursor-pointer">
+                  <span>{item.icon}</span>
+                  <span>{item.name}</span>
+                </li>
+              </Link>
+            ))
+
+          ) : null
+        }
+      </ul>
+
     </div>
   );
 }
