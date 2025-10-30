@@ -67,9 +67,9 @@ REM ===============================
 REM 4. Update Reservation 1 to SUCCESS
 REM ===============================
 echo Updating Reservation 1 status to SUCCESS...
-curl -X PATCH http://localhost:8084/reserves/1 ^
+curl -X PATCH http://localhost:8084/reserves/2 ^
 -H "Content-Type: application/json" ^
--d "{\"id\":1,\"userId\":2,\"status\":\"SUCCESS\",\"price\":4200}"
+-d "{\"id\":2,\"userId\":2,\"status\":\"SUCCESS\",\"price\":4000}"
 
 REM ===============================
 REM 5. Create Payment 1
