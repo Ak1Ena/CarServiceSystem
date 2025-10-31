@@ -27,7 +27,7 @@ const LoginPage = () => {
             setMessage({ title: 'Welcome Back!', text: `Login Successful, ${user.username}`, type: 'success' });
             const role = localStorage.getItem("userRole");
             if( role === "RENTER"){
-                nav("/cars")
+                nav("/cars/list")
             }else if(role === "OWNER"){
                 nav("/about")
             }

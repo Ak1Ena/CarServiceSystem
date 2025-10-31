@@ -20,7 +20,7 @@ export default function Sidebar({ open, toggleSidebar }) {
     { name: "About Us", icon: "", link: "/about" },
   ]
   const renterBar = [
-    { name: "Car", icon: "", link: "/cars" },
+    { name: "Car", icon: "", link: "/cars/list" },
     { name: "Receipts", icon: "", link: "/receipts" },
   ]
 
