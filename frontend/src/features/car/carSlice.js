@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchCars, addCar, updateCar, deleteCar, fetchCarById, createReserve } from "./services/Api.js";
+import { fetchCars, addCar, updateCar, deleteCar, fetchCarById, createReserve, fetchCarForOwner} from "./services/Api.js";
 
 const carSlice = createSlice({
   name: "car",
@@ -53,6 +53,14 @@ const carSlice = createSlice({
       .addCase(createReserve.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Reserve failed";
+      })
+       .addCase(fetchCarForOwner.fulfilled, (state,action) => {
+        state.loading = false;
+        state.list = action.payload
+      })
+      .addCase(fetchCarForOwner.rejected, (state,action) => {
+        state.loading = false;
+        state.error = action.error.message;
       });
   },
 });

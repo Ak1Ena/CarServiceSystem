@@ -17,7 +17,15 @@ export const fetchCars = createAsyncThunk("car/fetchAll", async () => {
   const res = await axios.get(`${API_BASE}/cars`);
   return res.data;
 });
-
+export const fetchCarForOwner = createAsyncThunk("car/fetchOwner", async (id)=>{
+  try{
+  const res = await axios.get(`${API_BASE}/cars/user/${id}`)
+  return res.data
+  }
+  catch(error){
+    return rejectWithValue(error.response.data);
+  }
+})
 export const addCar = createAsyncThunk("car/add", async (carFormData) => {
   const res = await axios.post(`${API_BASE}/cars`, carFormData);
   return res.data;
@@ -40,7 +48,7 @@ export const deleteCar = createAsyncThunk("car/delete", async (id) => {
 // 📌 2. ดึงรถตาม ID
 export const fetchCarById = createAsyncThunk("car/fetchById", async (id) => {
   try{
-  const res = await axios.get(`${API_BASE}/cars/${id}`);
+  const res = await axios.get(`${API_BASE}/cars/${id}/user`);
   return res.data;
   }catch(error){
     return rejectWithValue(error.response.data);
