@@ -7,6 +7,7 @@ export default function CarRoutes(){
             <Route path="/" element={<CarList />} />
             <Route path="/add" element={<CarForm />} />
             <Route path="/edit/:id" element={<CarForm />} />
+            <Route path="/edit/:id" element={<CarForm />} />
             {/* <Route path="/detail/:carId" element={<CarDetail />} /> */}
       </Routes>
     )

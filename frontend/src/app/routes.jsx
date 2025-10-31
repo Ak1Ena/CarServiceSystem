@@ -10,6 +10,7 @@ export default function AppRoutes(){
     return (
         <Routes>
             <Route path="/cars/*" element={<CarRoutes />}/>
+            {/* <Route path="/cars/:id" element={<CarRoutes />} /> */}
             {/* <Route path="/users/*" element={<UserRoutes />}/> */}
             <Route path="/payments/*" element={<PaymentRoutes />}/>
             <Route path="/receipts/*" element={<ReceiptRoutes />}/>

@@ -25,3 +25,11 @@ export const deleteCar = createAsyncThunk("car/delete", async (id) => {
   await axios.delete(`${API_BASE}/cars/${id}`);
   return id;
 });
+
+// export const fetchCarsByUser = createAsyncThunk(
+//   "car/fetchByUser",
+//   async (userId) => {
+//     const res = await axios.get(`${API_BASE}/cars/user/${userId}`);
+//     return res.data;
+//   }
+// );
