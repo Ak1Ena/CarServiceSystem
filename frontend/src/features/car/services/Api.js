@@ -2,7 +2,17 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const API_BASE = "http://localhost:8082";
-
+export const createReserve = createAsyncThunk(
+  "reserve/createReserve",
+  async (reserveData, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(`http://localhost:8084/reserves`, reserveData);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || "Error creating reserve");
+    }
+  }
+);
 export const fetchCars = createAsyncThunk("car/fetchAll", async () => {
   const res = await axios.get(`${API_BASE}/cars`);
   return res.data;
@@ -26,10 +36,13 @@ export const deleteCar = createAsyncThunk("car/delete", async (id) => {
   return id;
 });
 
-// export const fetchCarsByUser = createAsyncThunk(
-//   "car/fetchByUser",
-//   async (userId) => {
-//     const res = await axios.get(`${API_BASE}/cars/user/${userId}`);
-//     return res.data;
-//   }
-// );
+
+// 📌 2. ดึงรถตาม ID
+export const fetchCarById = createAsyncThunk("car/fetchById", async (id) => {
+  try{
+  const res = await axios.get(`${API_BASE}/cars/${id}`);
+  return res.data;
+  }catch(error){
+    return rejectWithValue(error.response.data);
+  }
+});

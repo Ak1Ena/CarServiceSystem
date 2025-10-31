@@ -8,7 +8,7 @@ export default function CarForm() {
   const navigate = useNavigate();
   const { id } = useParams();
   const car = useSelector((state) => state.car.list.find((c) => c.id === Number(id)));
-    const userId = localStorage.getItem("userId");
+  const userId = localStorage.getItem("userId") || 1;
   const [form, setForm] = useState({
     model: "",
     plateNumber: "",
@@ -24,36 +24,36 @@ export default function CarForm() {
     else dispatch(fetchCars());
   }, [id, car, dispatch]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-        const formData = new FormData();
+    const formData = new FormData();
 
-        // แปลง object form เป็น JSON string
-        formData.append("carDto", new Blob([JSON.stringify(form)], { type: "application/json" }));
+    // แปลง object form เป็น JSON string
+    formData.append("carDto", new Blob([JSON.stringify(form)], { type: "application/json" }));
 
-        // เพิ่มไฟล์ images
-        images.forEach((img) => formData.append("images", img));
+    // เพิ่มไฟล์ images
+    images.forEach((img) => formData.append("images", img));
 
-        // ตรวจสอบค่า
-        for (let [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
+    // ตรวจสอบค่า
+    for (let [key, value] of formData.entries()) {
+      console.log(key, value);
+    }
+    if (!userId) return navigate("/")
+    if (id) await dispatch(updateCar({ id, formData }));
+    else await dispatch(addCar(formData));
+  };
 
-        if (id) await dispatch(updateCar({ id, formData }));
-        else await dispatch(addCar(formData));
-    };
 
+  return (
+    <div className="min-h-screen bg-[#1E293B] flex items-center justify-center p-6">
+      <div className="w-full max-w-3xl bg-[#2D3B55] text-white rounded-2xl shadow-xl p-8">
+        <h1 className="text-3xl font-bold mb-8 text-center text-gray-100">
+          {id ? "Edit Car Details" : "Add New Car"}
+        </h1>
 
- return (
-  <div className="min-h-screen bg-[#1E293B] flex items-center justify-center p-6">
-    <div className="w-full max-w-3xl bg-[#2D3B55] text-white rounded-2xl shadow-xl p-8">
-      <h1 className="text-3xl font-bold mb-8 text-center text-gray-100">
-        {id ? "Edit Car Details" : "Add New Car"}
-      </h1>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Upload Section */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Upload Section */}
           <div className="relative">
             <label className="block text-gray-300 font-semibold mb-3">
               Add photos
@@ -86,14 +86,14 @@ export default function CarForm() {
                 type="file"
                 accept="image/jpeg"
                 multiple
-                onChange={(e) =>  {
-    const files = Array.from(e.target.files);
-    if (files.length + images.length > 3) {
-      alert("สามารถอัปโหลดได้ไม่เกิน 3 รูปเท่านั้น!");
-      return;
-    }
-    setImages((prev) => [...prev, ...files]);
-  }}
+                onChange={(e) => {
+                  const files = Array.from(e.target.files);
+                  if (files.length + images.length > 3) {
+                    alert("สามารถอัปโหลดได้ไม่เกิน 3 รูปเท่านั้น!");
+                    return;
+                  }
+                  setImages((prev) => [...prev, ...files]);
+                }}
                 className="absolute opacity-0 w-full h-full cursor-pointer"
               />
             </div>
@@ -112,99 +112,99 @@ export default function CarForm() {
               </div>
             )}
           </div>
-           
 
-        {/* Form Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {/* Name */}
+
+          {/* Form Fields */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* Name */}
+            <div>
+              <label className="block text-gray-300 mb-2 font-semibold">Name</label>
+              <input
+                type="text"
+                placeholder="e.g. Toyota Camry"
+                value={form.model}
+                onChange={(e) => setForm({ ...form, model: e.target.value })}
+                className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            {/* Plate Number */}
+            <div>
+              <label className="block text-gray-300 mb-2 font-semibold">Plate Number</label>
+              <input
+                type="text"
+                placeholder="e.g. ABC-1234"
+                value={form.plateNumber}
+                onChange={(e) => setForm({ ...form, plateNumber: e.target.value })}
+                className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            {/* Type */}
+            <div>
+              <label className="block text-gray-300 mb-2 font-semibold">Type</label>
+              <select
+                value={form.type}
+                onChange={(e) => setForm({ ...form, type: e.target.value })}
+                className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="">Select Type</option>
+                <option value="Sedan">Sedan</option>
+                <option value="SUV">SUV</option>
+                <option value="Van">Van</option>
+                <option value="Truck">Truck</option>
+              </select>
+            </div>
+
+            {/* Location */}
+            <div>
+              <label className="block text-gray-300 mb-2 font-semibold">Location</label>
+              <input
+                type="text"
+                placeholder="e.g. San Francisco, CA"
+                value={form.pickUp}
+                onChange={(e) => setForm({ ...form, pickUp: e.target.value })}
+                className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            {/* Price */}
+            <div className="md:col-span-2">
+              <label className="block text-gray-300 mb-2 font-semibold">Price per day ($)</label>
+              <input
+                type="number"
+                placeholder="e.g. 75"
+                value={form.price}
+                onChange={(e) => setForm({ ...form, price: e.target.value })}
+                className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+          </div>
+
+          {/* Description */}
           <div>
-            <label className="block text-gray-300 mb-2 font-semibold">Name</label>
-            <input
-              type="text"
-              placeholder="e.g. Toyota Camry"
-              value={form.model}
-              onChange={(e) => setForm({ ...form, model: e.target.value })}
+            <label className="block text-gray-300 mb-2 font-semibold">Description</label>
+            <textarea
+              rows="4"
+              placeholder="Briefly describe your car..."
+              value={form.description || ""}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
               className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
             />
           </div>
 
-          {/* Plate Number */}
-          <div>
-            <label className="block text-gray-300 mb-2 font-semibold">Plate Number</label>
-            <input
-              type="text"
-              placeholder="e.g. ABC-1234"
-              value={form.plateNumber}
-              onChange={(e) => setForm({ ...form, plateNumber: e.target.value })}
-              className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Type */}
-          <div>
-            <label className="block text-gray-300 mb-2 font-semibold">Type</label>
-            <select
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value })}
-              className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          {/* Submit */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="bg-red-600 hover:bg-red-700 transition-colors px-6 py-3 rounded-lg font-semibold"
             >
-              <option value="">Select Type</option>
-              <option value="Sedan">Sedan</option>
-              <option value="SUV">SUV</option>
-              <option value="Van">Van</option>
-              <option value="Truck">Truck</option>
-            </select>
+              {id ? "Update Car" : "Add Car"}
+            </button>
           </div>
-
-          {/* Location */}
-          <div>
-            <label className="block text-gray-300 mb-2 font-semibold">Location</label>
-            <input
-              type="text"
-              placeholder="e.g. San Francisco, CA"
-              value={form.pickUp}
-              onChange={(e) => setForm({ ...form, pickUp: e.target.value })}
-              className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-
-          {/* Price */}
-          <div className="md:col-span-2">
-            <label className="block text-gray-300 mb-2 font-semibold">Price per day ($)</label>
-            <input
-              type="number"
-              placeholder="e.g. 75"
-              value={form.price}
-              onChange={(e) => setForm({ ...form, price: e.target.value })}
-              className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-          </div>
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-gray-300 mb-2 font-semibold">Description</label>
-          <textarea
-            rows="4"
-            placeholder="Briefly describe your car..."
-            value={form.description || ""}
-            onChange={(e) => setForm({ ...form, description: e.target.value })}
-            className="w-full bg-[#1E293B] border border-gray-600 rounded-lg p-3 text-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          />
-        </div>
-
-        {/* Submit */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-red-600 hover:bg-red-700 transition-colors px-6 py-3 rounded-lg font-semibold"
-          >
-            {id ? "Update Car" : "Add Car"}
-          </button>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
-);
+  );
 
 }
