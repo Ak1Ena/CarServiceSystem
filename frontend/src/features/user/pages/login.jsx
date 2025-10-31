@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link }  from 'react-router-dom';
+import { Link, useNavigate }  from 'react-router-dom';
 import { login } from '../services/api';
 import AuthLayout from '../components/authlayout'; 
 import Notification from '../components/notification';
@@ -13,6 +13,7 @@ const LoginPage = () => {
 
     const dispatch = useDispatch();
     const { status, error, user } = useSelector((state) => state.user);
+    const nav = useNavigate();
     const [Message, setMessage] = useState(null);
 
         // จัดการ Redirect
@@ -24,7 +25,12 @@ const LoginPage = () => {
         
         if (status === 'success' && user) {
             setMessage({ title: 'Welcome Back!', text: `Login Successful, ${user.username}`, type: 'success' });
-            
+            const role = localStorage.getItem("userRole");
+            if( role === "RENTER"){
+                nav("/cars")
+            }else if(role === "OWNER"){
+                nav("/about")
+            }
             setTimeout(() => {
             }, 2000);
         }
@@ -96,7 +102,7 @@ const LoginPage = () => {
 
                 <div className="text-center mt-4 text-sm">
                 <span className="text-gray-500 mr-1">Not registered?</span>
-                <Link to="/users/register" className="text-red-600 font-semibold hover:text-red-700 transition duration-150">
+                <Link to="/register" className="text-red-600 font-semibold hover:text-red-700 transition duration-150">
                     Create an account
                 </Link>
             </div>

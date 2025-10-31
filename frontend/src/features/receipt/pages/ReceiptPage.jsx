@@ -20,17 +20,11 @@ const ReceiptComponent = ({ receiptData }) => {
 
     return (
         <div className="w-full max-w-4xl bg-white p-10 shadow-lg border border-gray-200 text-gray-800">
-            <header className="flex justify-between items-start border-b-2 border-gray-800 pb-3 mb-6">
-                <h1 className="text-3xl font-bold uppercase">ใบเสร็จรับเงิน</h1>
-                <div className="text-right text-sm">
-                    <p className="font-semibold text-lg">{ownerName}</p>
-    return (
-        <div className="w-full max-w-4xl bg-white p-10 shadow-lg border border-gray-200 text-gray-800">
 
             <header className="flex justify-between items-start border-b-2 border-gray-800 pb-3 mb-6">
                 <h1 className="text-3xl font-bold uppercase">ใบเสร็จรับเงิน</h1>
                 <div className="text-right text-sm">
-                    <p className="font-semibold text-lg">{owner || 'Normaaaaa'}</p>
+                    <p className="font-semibold text-lg">{ownerName || 'Normaaaaa'}</p>
                     <p className="text-xs text-gray-500">Service Shop</p>
                 </div>
             </header>
@@ -45,13 +39,13 @@ const ReceiptComponent = ({ receiptData }) => {
 
                 <div className="w-5/12 text-right">
                     <h2 className="text-sm font-bold uppercase border-b border-gray-300 pb-1 mb-2">รายละเอียดข้อมูลรถ</h2>
-                    <p><span className="font-medium">ทะเบียน:</span> {car.licensePlate || 'N/A'}</p>
+                    <p><span className="font-medium">ทะเบียน:</span> {car.plateNumber || 'N/A'}</p>
                     <p><span className="font-medium">ยี่ห้อ/รุ่น:</span> {car.brand} {car.model}</p>
                     <p><span className="font-medium">รหัสจอง:</span> {reserve.id || 'N/A'}</p>
                 </div>
             </div>
 
-            <table className="min-w-full divide-y divide-gray-200 mb-8">
+            {/* <table className="min-w-full divide-y divide-gray-200 mb-8">
                 <thead className="bg-gray-50">
                     <tr>
                         <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider">รายการสินค้า</th>
@@ -76,7 +70,7 @@ const ReceiptComponent = ({ receiptData }) => {
                         </tr>
                     )}
                 </tbody>
-            </table>
+            </table> */}
 
             <div className="flex justify-between items-end">
                 <div className="w-5/12">

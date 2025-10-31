@@ -13,6 +13,7 @@ export const fetchReceiptsByUserId = createAsyncThunk(
 
         if (!text) throw new Error(`ไม่พบข้อมูลสำหรับผู้ใช้ ${userId}`);
         const data = JSON.parse(text);
+        console.log(data)
         return data;
       }
       return [];

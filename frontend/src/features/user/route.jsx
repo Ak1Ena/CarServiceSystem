@@ -6,7 +6,7 @@ import RegisterPage from './pages/register';
 export default function UserRoutes() {
   return (
     <Routes>
-      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
     </Routes>
   );

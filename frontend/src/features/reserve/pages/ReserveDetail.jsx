@@ -34,7 +34,7 @@ function ReserveDetail() {
   async function confirmReserve() {
     try {
       const res = await dispatch(
-        patchReserveStatus({ reserveId: id, body: { status: "CONFIRMED" } })
+        patchReserveStatus({ reserveId: id, body: {id:id,userId:reserve.userId, status: "SUCCESS" } })
       ).unwrap();
 
       dispatch(updateReserveStatus({ reserveId: id, status: res.status }));

@@ -35,6 +35,7 @@ export const patchReserveStatus = createAsyncThunk(
   async ({ reserveId, body }, { rejectWithValue }) => {
     try {
       const response = await axios.patch(`${BASE_URL}/${reserveId}`, body);
+      console.log(response)
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
