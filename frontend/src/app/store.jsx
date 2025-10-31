@@ -7,7 +7,7 @@ import userReducer from "../features/user/userSlice.js"
 // import receiptReducer from "../features/receipt/receiptSlice.js"
 // import paymentReducer from "../features/payment/paymentSlice.js"
 import receiptReducer from "../features/receipt/receiptSlice.js"
-// import reserveReducer from "../features/reserve/reserveSlice.js"
+import reserveReducer from "../features/reserve/reserveSlice.js"
 
 export default configureStore({
     reducer:{
@@ -17,6 +17,6 @@ export default configureStore({
         // receipt: receiptReducer,
         // payment: paymentReducer,
         receipt: receiptReducer,
-        // reserve: reserveReducer,
+        reserves: reserveReducer,
     }
 })
