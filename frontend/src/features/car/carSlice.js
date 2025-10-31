@@ -1,5 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { fetchCars, addCar, updateCar, deleteCar, fetchCarById } from "./services/Api.js";
+import { fetchCars, addCar, updateCar, deleteCar, fetchCarById, createReserve } from "./services/Api.js";
 
 const carSlice = createSlice({
   name: "car",
