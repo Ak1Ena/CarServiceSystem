@@ -1,54 +1,37 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import axios from "axios";
 import ReserveCard from "../components/ReserveCard";
-import { setReserves } from "../reserveSlice";
+import { getAllReserves } from "../services/Api.js";
 
 function ReserveList() {
   const dispatch = useDispatch();
-  const reserves = useSelector((state) => state.reserve);
-  const [isLoading, setIsLoading] = useState(false);
+  const { items: reserves, loading, error } = useSelector(
+    (state) => state.reserves
+  );
 
   useEffect(() => {
-    if (reserves?.length > 0) return;
-
-    async function fetchReserves() {
-      setIsLoading(true);
-      try {
-        const res = await axios.get("http://localhost:8086/reservations");
-
-        dispatch(setReserves(res.data));
-      } catch (err) {
-        console.error("Failed to fetch reserves:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    fetchReserves();
-  }, [dispatch, reserves]);
+    dispatch(getAllReserves());
+  }, [dispatch]);
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-50 py-16">
-      <h1 className="text-2xl font-semibold mb-10 text-gray-800">Reservation List</h1>
+      <h1 className="text-2xl font-semibold mb-10 text-gray-800">
+        Reservation List
+      </h1>
 
-      <div className="flex flex-col gap-6 w-full max-w-3xl">
-        {isLoading ? (
-          <p>Loading...</p>
-        ) : reserves?.length > 0 ? (
-          reserves.map((reserve) => (
-            <ReserveCard
-              key={reserve.id}
-              id={reserve.id}
-              title={`Reserve for ${reserve.car?.model ?? "-"}`}
-              desc={`Renter: ${reserve.user?.name ?? "-"}, Status: ${reserve.status}`}
-              status={reserve.status}
-            />
-          ))
-        ) : (
-          <p className="text-gray-600">ไม่พบข้อมูลการจอง</p>
-        )}
-      </div>
+      {loading ? (
+        <p>Loading...</p>
+      ) : error ? (
+        <p className="text-red-500">เกิดข้อผิดพลาด: {error}</p>
+      ) : reserves?.length === 0 ? (
+        <p className="text-gray-600">ไม่พบข้อมูลการจอง</p>
+      ) : (
+        <div className="flex flex-col gap-6 w-full max-w-4xl">
+          {reserves.map((reserve) => (
+            <ReserveCard key={reserve.id} reserve={reserve} />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

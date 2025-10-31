@@ -1,23 +1,30 @@
 import React from "react"
-import { Routes,Route } from "react-router-dom"
+import { Routes, Route, Navigate} from "react-router-dom"
 import CarRoutes from "../features/car/route.jsx"
 import PaymentRoutes from "../features/payment/route.jsx"
 import ReceiptRoutes from "../features/receipt/route.jsx"
 import ReserveRoutes from "../features/reserve/route.jsx"
-// import UserRoutes from "../features/user/route.jsx"
+import UserRoutes from "../features/user/route.jsx"
 import About from "../pages/About.jsx"
-export default function AppRoutes(){
+
+export default function AppRoutes() {
+    const role = localStorage.getItem("userRole");
+    const ProtectedRoute = ({ allowRoles, element }) => {
+        if (!role) {
+            return <Navigate to="/" replace />;
+        }
+
+        if (allowRoles.includes(role)) return element;
+    }
     return (
         <Routes>
-            <Route path="/cars/*" element={<CarRoutes />}/>
-            {/* <Route path="/cars/:id" element={<CarRoutes />} /> */}
-            {/* <Route path="/users/*" element={<UserRoutes />}/> */}
-            <Route path="/payments/*" element={<PaymentRoutes />}/>
-            <Route path="/receipts/*" element={<ReceiptRoutes />}/>
-            <Route path="/reservations/*" element={<ReserveRoutes />}/>
-            <Route path="/" element={<div>TESTING</div>}/>
-            <Route path="*" element={<div>404 - Page Not Found</div>} /> 
-            <Route path="/about" element={<About />} />
+            <Route path="/cars/*" element={<ProtectedRoute allowRoles={["RENTER", "OWNER"]} element={<CarRoutes />} />} />
+            <Route path="/*" element={<UserRoutes />} />
+            <Route path="/payments/*" element={<ProtectedRoute allowRoles={["OWNER"]} element={<PaymentRoutes />} />} />
+            <Route path="/receipts/*" element={<ProtectedRoute allowRoles={["RENTER"]} element={<ReceiptRoutes />} />} />
+            <Route path="/reservations/*" element={<ProtectedRoute allowRoles={["OWNER"]} element={<ReserveRoutes />} />} />
+            <Route path="*" element={<div>404 - Page Not Found</div>} />
+            <Route path="/about" element={<ProtectedRoute allowRoles={["OWNER"]} element={<About />} />} />
         </Routes>
     )
 }

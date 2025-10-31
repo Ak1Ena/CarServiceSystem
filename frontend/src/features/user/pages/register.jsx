@@ -153,16 +153,16 @@ const Step3Role = ({ formData, handleChange, prevStep, handleSubmit, status }) =
         <div className="flex flex-col space-y-4 items-center">
             
             <label className={`w-full max-w-xs p-4 border-2 rounded-lg cursor-pointer transition duration-200 
-                ${formData.userRole === 'RENTER' ? 'border-red-500' : 'border-gray-200'} 
+                ${formData.role === 'RENTER' ? 'border-red-500' : 'border-gray-200'} 
                 flex items-center justify-center`}>
-                <input type="radio" name="userRole" value="RENTER" checked={formData.userRole === 'RENTER'} onChange={handleChange} className="hidden" required />
+                <input type="radio" name="role" value="RENTER" checked={formData.role === 'RENTER'} onChange={handleChange} className="hidden" required />
                 <p className="font-semibold text-center w-full">Renter</p>
             </label>
             
             <label className={`w-full max-w-xs p-4 border-2 rounded-lg cursor-pointer transition duration-200 
-                ${formData.userRole === 'OWNER' ? 'border-red-500' : 'border-gray-200'} 
+                ${formData.role === 'OWNER' ? 'border-red-500' : 'border-gray-200'} 
                 flex items-center justify-center`}>
-                <input type="radio" name="userRole" value="OWNER" checked={formData.userRole === 'OWNER'} onChange={handleChange} className="hidden" required />
+                <input type="radio" name="role" value="OWNER" checked={formData.role === 'OWNER'} onChange={handleChange} className="hidden" required />
                 <p className="font-semibold text-center w-full">Owner</p>
             </label>
             
@@ -204,7 +204,7 @@ const RegisterPage = () => {
         addressDetail: '',
 
         // Step 3 Field
-        role: 'RENTER',
+        role: '',
     });
 
     const dispatch = useDispatch();
@@ -223,7 +223,7 @@ const RegisterPage = () => {
 
             // Redirect หลังแจ้งเตือน
             setTimeout(() => {
-                navigate('/users/login');
+                navigate('/');
             }, 2000); 
         }
     }, [status, error, isRegistered, navigate]); // ตรวจสอบสถานะ
@@ -256,7 +256,7 @@ const RegisterPage = () => {
             address: `เลขที่ ${formData.addressHouseNo}, ต.${formData.addressSubDistrict}, อ.${formData.addressDistrict}, จ.${formData.addressProvince} ${formData.addressZipCode}. ${formData.addressDetail}`,
             role: formData.role,
         };
-        
+        console.log(userDto)
         // 2. Dispatch Action
         dispatch(register(userDto));
     };

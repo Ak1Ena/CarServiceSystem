@@ -1,26 +1,44 @@
+import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { updateReserveStatus } from "../reserveSlice";
-import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getReserveById,
+  patchReserveStatus,
+  deleteReserve,
+} from "../services/Api";
+import {
+  updateReserveStatus,
+  removeReserve,
+} from "../reserveSlice";
 
 function ReserveDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const reserve = useSelector((state) =>
-    state.reserve.find((r) => r.id?.toString() === id)
+  const { selectedReserve: reserve, loading } = useSelector(
+    (state) => state.reserves
   );
 
+  useEffect(() => {
+    dispatch(getReserveById(id));
+  }, [dispatch, id]);
+
+  if (loading) return <div className="text-center mt-10">Loading...</div>;
   if (!reserve)
     return (
       <div className="text-center mt-10 text-gray-600">ไม่พบข้อมูลการจอง</div>
     );
 
+  
   async function confirmReserve() {
     try {
-      const res = await axios.patch(`http://localhost:8086/reservations/${id}/confirm`);
-      dispatch(updateReserveStatus({ reserveId: id, status: res.data.status }));
+      const res = await dispatch(
+        patchReserveStatus({ reserveId: id, body: {id:id,userId:reserve.userId, status: "SUCCESS" } })
+      ).unwrap();
+
+      dispatch(updateReserveStatus({ reserveId: id, status: res.status }));
+
       navigate("/reservations");
     } catch (err) {
       console.error("Confirm failed:", err);
@@ -28,33 +46,50 @@ function ReserveDetail() {
     }
   }
 
+  async function handleDelete() {
+    if (!window.confirm("คุณต้องการลบการจองนี้หรือไม่?")) return;
+    try {
+      await dispatch(deleteReserve(id)).unwrap();
+      dispatch(removeReserve(id));
+      navigate("/reservations");
+    } catch (err) {
+      console.error("Delete failed:", err);
+      alert("Delete failed");
+    }
+  }
+
   return (
     <div className="flex min-h-screen bg-[#1c1c1c] text-white">
-
-      {/* 🔹 Main content */}
       <main className="flex-1 p-12 flex flex-col items-center">
         <div className="w-full max-w-4xl bg-[#2b2b2b] p-10 rounded-2xl shadow-lg">
-          <h1 className="text-2xl font-semibold mb-8">Checkout</h1>
+          <h1 className="text-2xl font-semibold mb-8">Reservation Detail</h1>
 
           <div className="grid grid-cols-2 gap-6 text-gray-300">
             <div>
               <p className="mb-2 text-sm text-gray-400">Primary driver</p>
               <input
-                value={reserve.user?.name ?? "-"}
+                value={reserve.userId}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
               <p className="mt-4 mb-2 text-sm text-gray-400">Car Model</p>
               <input
-                value={reserve.car?.model ?? "Unknown"}
+                value={reserve.carId}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
-              <p className="mt-4 mb-2 text-sm text-gray-400">Date</p>
+              <p className="mt-4 mb-2 text-sm text-gray-400">Start Date</p>
               <input
-                value={reserve.date ?? "-"}
+                value={reserve.startDate ?? "-"}
+                readOnly
+                className="w-full bg-[#3a3a3a] rounded p-2"
+              />
+
+              <p className="mt-4 mb-2 text-sm text-gray-400">End Date</p>
+              <input
+                value={reserve.endDate ?? "-"}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
@@ -67,22 +102,19 @@ function ReserveDetail() {
               />
             </div>
 
-            {/* ใบสรุปด้านขวา */}
             <div className="bg-[#d1d1d1] text-black rounded-lg p-6">
               <div className="flex justify-between mb-4">
                 <div>
                   <p className="font-semibold">Reservation Summary</p>
                   <p className="text-sm">#{reserve.id}</p>
                 </div>
-                <div className="w-20 h-20 bg-gray-300" /> {/* placeholder รูปรถ */}
+                <div className="w-20 h-20 bg-gray-300" />
               </div>
+              <p className="text-sm mb-2">Driver: {reserve.userId}</p>
+              <p className="text-sm mb-2">Car: {reserve.carId}</p>
               <p className="text-sm mb-2">
-                Driver: {reserve.user?.name ?? "-"}
+                Date: {reserve.startDate ?? "-"} → {reserve.endDate ?? "-"}
               </p>
-              <p className="text-sm mb-2">
-                Car: {reserve.car?.model ?? "-"}
-              </p>
-              <p className="text-sm mb-2">Date: {reserve.date ?? "-"}</p>
               <p className="text-sm mb-2">Status: {reserve.status}</p>
             </div>
           </div>
@@ -94,19 +126,22 @@ function ReserveDetail() {
             >
               Back
             </button>
-            <button
-              onClick={confirmReserve}
-              disabled={reserve.status === "CONFIRMED"}
-              className={`px-6 py-2 rounded text-white ${
-                reserve.status === "CONFIRMED"
-                  ? "bg-gray-500"
-                  : "bg-red-700 hover:bg-red-800"
-              }`}
-            >
-              {reserve.status === "CONFIRMED"
-                ? "Already Confirmed"
-                : "Confirm"}
-            </button>
+
+            {reserve.status === "CONFIRMED" ? (
+              <button
+                onClick={handleDelete}
+                className="px-6 py-2 rounded text-white bg-red-700 hover:bg-red-800"
+              >
+                Delete
+              </button>
+            ) : (
+              <button
+                onClick={confirmReserve}
+                className="px-6 py-2 rounded text-white bg-green-700 hover:bg-green-800"
+              >
+                Confirm
+              </button>
+            )}
           </div>
         </div>
       </main>
