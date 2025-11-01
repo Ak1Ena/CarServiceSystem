@@ -11,4 +11,3 @@ Feature for Owner
 Feature of Renter
 - Rent Car
 - Get the receipt when payment success
-- Cancel Reservation
