@@ -20,6 +20,7 @@ export default function CarForm() {
   const [images, setImages] = useState([]);
   const [existingImages, setExistingImages] = useState([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: "", type: "success" });
 
   useEffect(() => {
     if (id && car) {
@@ -43,19 +44,26 @@ export default function CarForm() {
     formData.append("carDto", new Blob([JSON.stringify(form)], { type: "application/json" }));
     images.forEach((img) => formData.append("images", img));
 
-    for (let [key, value] of formData.entries()) {
-      console.log(key, value);
-    }
-
     if (!userId) return navigate("/");
 
     try {
       if (id) {
         await dispatch(updateCar({ id, formData }));
-        // ลบรูปใหม่ที่อัปโหลดออก
         setImages([]);
+        setToast({ show: true, message: "✅ Updated successfully!", type: "success" });
       } else {
         await dispatch(addCar(formData));
+        setForm({
+          model: "",
+          plateNumber: "",
+          price: "",
+          pickUp: "",
+          type: "",
+          userId: userId,
+        });
+        setImages([]);
+        setExistingImages([]);
+        setToast({ show: true, message: "🚗 Added successfully!", type: "success" });
       }
     } finally {
       setIsSubmitting(false);
@@ -72,6 +80,16 @@ export default function CarForm() {
 
   return (
     <div className="min-h-screen bg-black text-white py-16 px-4 sm:px-6 lg:px-8">
+      {toast.show && (
+        <div
+          className={`fixed top-6 right-6 px-6 py-4 rounded-2xl shadow-lg transition-all duration-500 z-50
+            ${toast.type === "success" ? "bg-green-600/90" : "bg-red-600/90"} 
+            text-white text-sm font-medium`}
+        >
+          {toast.message}
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-12">
@@ -104,7 +122,7 @@ export default function CarForm() {
               <label className="block text-sm font-light text-gray-400 uppercase tracking-wider">
                 Vehicle Photos
               </label>
-              
+
               <div className="relative">
                 <input
                   type="file"
@@ -175,7 +193,7 @@ export default function CarForm() {
                       </div>
                     </div>
                   ))}
-                  
+
                   {/* แสดงรูปใหม่ */}
                   {images.map((img, index) => (
                     <div key={`new-${index}`} className="relative group aspect-[4/3] rounded-xl overflow-hidden border border-red-500/20">
@@ -282,6 +300,7 @@ export default function CarForm() {
                   <input
                     type="number"
                     placeholder="0.00"
+                    min={0}
                     value={form.price}
                     onChange={(e) => setForm({ ...form, price: e.target.value })}
                     className="w-full pl-12 pr-5 py-4 rounded-2xl bg-black border border-red-500/20 text-white font-light focus:border-red-500 focus:outline-none focus:ring-4 focus:ring-red-500/10 transition-all placeholder:text-gray-600"
@@ -291,18 +310,17 @@ export default function CarForm() {
               </div>
             </div>
 
-           
+
 
             {/* Submit Button */}
             <div className="flex justify-end pt-4">
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className={`px-8 py-4 rounded-2xl font-medium transition-all ${
-                  isSubmitting
+                className={`px-8 py-4 rounded-2xl font-medium transition-all ${isSubmitting
                     ? "bg-zinc-800 cursor-not-allowed"
                     : "bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-lg shadow-red-500/20 hover:shadow-red-500/40 hover:scale-105 active:scale-95"
-                }`}
+                  }`}
               >
                 {isSubmitting ? (
                   <span className="flex items-center space-x-3">

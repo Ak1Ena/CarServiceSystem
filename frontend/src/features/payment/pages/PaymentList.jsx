@@ -7,14 +7,13 @@ import PaymentCard from "../components/PaymentCard";
 import { getPaymentsByOwner } from "../services/Api";
 
 function PaymentList() {
-
-    const ownerId = localStorage.getItem("userId");
-
+    
+    const ownerId = useSelector((state) => state.user.user?.id);
     const dispatch = useDispatch();
     const { list, loading, error } = useSelector((state) => state.payment);
 
     useEffect(() => {
-        if (ownerId && !loading && (!list || list.length === 0)) {
+        if (ownerId) {
             dispatch(getPaymentsByOwner(ownerId));
         }
 
@@ -39,7 +38,6 @@ function PaymentList() {
                     ) : list.length > 0 ? (
                         list.flatMap((car) =>
                             car.reserves.map((reserve) => (
-                                console.log(reserve),
                                 <PaymentCard
                                     img={car.car.img1}
                                     key={reserve.payment?.paymentId}

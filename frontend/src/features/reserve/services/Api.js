@@ -6,9 +6,9 @@ const BASE_URL = "http://localhost:8084/reserves";
 // ✅ ดึงรายการจองทั้งหมด
 export const getAllReserves = createAsyncThunk(
   "reserves/getAll",
-  async (_, { rejectWithValue }) => {
+  async (ownerId, { rejectWithValue }) => {
     try {
-      const response = await axios.get(BASE_URL);
+      const response = await axios.get(`${BASE_URL}/owner/${ownerId}`);
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data || error.message);
