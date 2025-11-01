@@ -1,4 +1,4 @@
-import { useEffect, useState , useMemo} from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useParams, useNavigate } from "react-router-dom";
 
@@ -16,13 +16,22 @@ function PaymentDetail() {
         for (const carNode of list) {
             const reserves = carNode?.reserves || [];
             for (const reserve of reserves) {
-            if (reserve?.payment?.paymentId?.toString() === id) {
-                return { ...reserve, car: carNode };
-            }
+                if (reserve?.payment?.paymentId?.toString() === id) {
+                    return { ...reserve, car: carNode };
+                }
             }
         }
         return null;
     }, [list, id]);
+    useEffect(() => {
+        if (reserveObj === null) {
+            const timer = setTimeout(() => {
+                navigate("/payments");
+            }, 3000); // 3000ms = 3 วินาที
+
+            return () => clearTimeout(timer); // cleanup
+        }
+    }, [reserveObj, navigate]);
     if (!reserveObj) {
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-600">

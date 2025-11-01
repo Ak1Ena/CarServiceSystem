@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -15,26 +15,44 @@ function ReserveDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const { selectedReserve: reserve, loading } = useSelector(
-    (state) => state.reserves
-  );
+  const [reserve, setReserve] = useState(null);
+  const { loading, items } = useSelector((state) => state.reserves);
 
   useEffect(() => {
-    dispatch(getReserveById(id));
-  }, [dispatch, id]);
+    if (items && items.length > 0) {
+      const found = items
+        .flatMap(item =>
+          item.reserves.map(r => ({
+            reserve: r.reserve,
+            user: r.user,
+            car: item.car
+          }))
+        )
+        .find(r => r.reserve.id === Number(id));
+        console.log(found)
 
+      if (found) {
+        setReserve(found);
+
+      } else {
+        navigate("/reservations");
+
+      }
+    }else{
+      navigate("/reservations")
+    }
+  }, [items, id, navigate]);
   if (loading) return <div className="text-center mt-10">Loading...</div>;
   if (!reserve)
     return (
       <div className="text-center mt-10 text-gray-600">ไม่พบข้อมูลการจอง</div>
     );
 
-  
+
   async function confirmReserve() {
     try {
       const res = await dispatch(
-        patchReserveStatus({ reserveId: id, body: {id:id,userId:reserve.userId, status: "SUCCESS" } })
+        patchReserveStatus({ reserveId: id, body: { id: id, userId: reserve.reserve.userId, status: "SUCCESS" } })
       ).unwrap();
 
       dispatch(updateReserveStatus({ reserveId: id, status: res.status }));
@@ -68,35 +86,35 @@ function ReserveDetail() {
             <div>
               <p className="mb-2 text-sm text-gray-400">Primary driver</p>
               <input
-                value={reserve.userId}
+                value={reserve.user}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
               <p className="mt-4 mb-2 text-sm text-gray-400">Car Model</p>
               <input
-                value={reserve.carId}
+                value={reserve.car.model}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
               <p className="mt-4 mb-2 text-sm text-gray-400">Start Date</p>
               <input
-                value={reserve.startDate ?? "-"}
+                value={reserve.reserve.startDate ?? "-"}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
               <p className="mt-4 mb-2 text-sm text-gray-400">End Date</p>
               <input
-                value={reserve.endDate ?? "-"}
+                value={reserve.reserve.endDate ?? "-"}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
 
               <p className="mt-4 mb-2 text-sm text-gray-400">Status</p>
               <input
-                value={reserve.status}
+                value={reserve.reserve.status}
                 readOnly
                 className="w-full bg-[#3a3a3a] rounded p-2"
               />
@@ -106,16 +124,16 @@ function ReserveDetail() {
               <div className="flex justify-between mb-4">
                 <div>
                   <p className="font-semibold">Reservation Summary</p>
-                  <p className="text-sm">#{reserve.id}</p>
+                  <p className="text-sm">#{reserve.reserve.id}</p>
                 </div>
                 <div className="w-20 h-20 bg-gray-300" />
               </div>
-              <p className="text-sm mb-2">Driver: {reserve.userId}</p>
-              <p className="text-sm mb-2">Car: {reserve.carId}</p>
+              <p className="text-sm mb-2">Driver: {reserve.user}</p>
+              <p className="text-sm mb-2">Car: {reserve.car.model + " | " + reserve.car.plateNumber}</p>
               <p className="text-sm mb-2">
-                Date: {reserve.startDate ?? "-"} → {reserve.endDate ?? "-"}
+                Date: {reserve.reserve.startDate ?? "-"} → {reserve.reserve.endDate ?? "-"}
               </p>
-              <p className="text-sm mb-2">Status: {reserve.status}</p>
+              <p className="text-sm mb-2">Status: {reserve.reserve.status}</p>
             </div>
           </div>
 
@@ -127,7 +145,7 @@ function ReserveDetail() {
               Back
             </button>
 
-            {reserve.status === "SUCCESS" ? (
+            {reserve.reserve.status === "SUCCESS" ? (
               <button
                 onClick={handleDelete}
                 className="px-6 py-2 rounded text-white bg-red-700 hover:bg-red-800"
