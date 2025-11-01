@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate }  from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../services/api';
-import AuthLayout from '../components/authlayout'; 
+import AuthLayout from '../components/authlayout';
 import Notification from '../components/notification';
 
 const LoginPage = () => {
     const [credentials, setCredentials] = useState({
-        username: '', 
+        username: '',
         password: ''
     });
 
@@ -17,7 +17,7 @@ const LoginPage = () => {
     const [Message, setMessage] = useState(null);
     const [hasRedirected, setHasRedirected] = useState(false);
 
-        // จัดการ Redirect
+    // จัดการ Redirect
     useEffect(() => {
         if (status === 'error' && error) {
             setMessage({ title: 'Login Failed!', text: error, type: 'error' });
@@ -28,17 +28,32 @@ const LoginPage = () => {
             setHasRedirected(true);
             setMessage({ title: 'Welcome Back!', text: `Login Successful, ${user.username}`, type: 'success' });
             const role = localStorage.getItem("userRole");
-            if( role === "RENTER"){
+            if (role === "RENTER") {
                 nav("/cars/list")
-            }else if(role === "OWNER"){
+            } else if (role === "OWNER") {
                 nav("/about")
-            }else{
+            } else {
                 nav("/")
             }
             setTimeout(() => {
             }, 2000);
         }
-    }, [status,error, user]);
+    }, [status, error, user]);
+    useEffect(() => {
+        const role = localStorage.getItem("userRole");
+        const userId = localStorage.getItem("userId");
+
+        // ถ้าเคย login แล้ว
+        if (role && userId) {
+            if (role === "RENTER") {
+                nav("/cars/list");
+            } else if (role === "OWNER") {
+                nav("/about");
+            } else {
+                nav("/");
+            }
+        }
+    }, []);
 
     const handleChange = (e) => {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -46,13 +61,13 @@ const LoginPage = () => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        
+
         // ส่ง username และ password ที่กรอกโดยตรง
         const loginData = {
-            username: credentials.username, 
+            username: credentials.username,
             password: credentials.password
         };
-        
+
         if (!loginData.username || !loginData.password) return;
 
         dispatch(login(loginData));
@@ -60,11 +75,11 @@ const LoginPage = () => {
 
     return (
         <>
-            <Notification 
-                message={Message?.text} 
-                title={Message?.title} 
-                type={Message?.type} 
-                onClose={() => setMessage(null)} 
+            <Notification
+                message={Message?.text}
+                title={Message?.title}
+                type={Message?.type}
+                onClose={() => setMessage(null)}
             />
 
             <AuthLayout title="Welcome Back!" subtitle="Sign in to your account">
@@ -76,7 +91,7 @@ const LoginPage = () => {
                         <input
                             type="text"
                             name="username"
-                            placeholder="Username" 
+                            placeholder="Username"
                             value={credentials.username}
                             onChange={handleChange}
                             required
@@ -105,11 +120,11 @@ const LoginPage = () => {
                 </form>
 
                 <div className="text-center mt-4 text-sm">
-                <span className="text-gray-500 mr-1">Not registered?</span>
-                <Link to="/register" className="text-red-600 font-semibold hover:text-red-700 transition duration-150">
-                    Create an account
-                </Link>
-            </div>
+                    <span className="text-gray-500 mr-1">Not registered?</span>
+                    <Link to="/register" className="text-red-600 font-semibold hover:text-red-700 transition duration-150">
+                        Create an account
+                    </Link>
+                </div>
 
             </AuthLayout>
         </>

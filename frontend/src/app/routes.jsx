@@ -9,15 +9,17 @@ import About from "../pages/About.jsx"
 import LoginPage from "../features/user/pages/login.jsx"
 import RegisterPage from "../features/user/pages/register.jsx"
 
-export default function AppRoutes() {
-    const role = localStorage.getItem("userRole");
-    const ProtectedRoute = ({ allowRoles, element }) => {
+export const ProtectedRoute = ({ allowRoles, element }) => {
+        const role = localStorage.getItem("userRole");
         if (!role) {
             return <Navigate to="/login" replace />;
         }
 
-        if (allowRoles.includes(role)) return element;
+        if (!allowRoles.includes(role)) return null;
+        return element;
     }
+export default function AppRoutes() {
+    
     return (
         <Routes>
             <Route path="/" element={<LoginPage />} />

@@ -127,7 +127,7 @@ function ReserveDetail() {
               Back
             </button>
 
-            {reserve.status === "CONFIRMED" ? (
+            {reserve.status === "SUCCESS" ? (
               <button
                 onClick={handleDelete}
                 className="px-6 py-2 rounded text-white bg-red-700 hover:bg-red-800"
