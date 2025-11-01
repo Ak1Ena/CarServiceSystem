@@ -17,7 +17,6 @@ const userSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.user = null;
-      state.token = null;
       state.status = "idle";
       localStorage.removeItem('currentUser');
       localStorage.removeItem('userId'); 
@@ -54,7 +53,6 @@ const userSlice = createSlice({
         state.status = "error";
         state.error = action.payload;
         state.user = null;
-        state.token = null;
         localStorage.removeItem('userId');
         localStorage.removeItem('userRole');
       })

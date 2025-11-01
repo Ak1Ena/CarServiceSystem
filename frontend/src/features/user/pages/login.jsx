@@ -15,6 +15,7 @@ const LoginPage = () => {
     const { status, error, user } = useSelector((state) => state.user);
     const nav = useNavigate();
     const [Message, setMessage] = useState(null);
+    const [hasRedirected, setHasRedirected] = useState(false);
 
         // จัดการ Redirect
     useEffect(() => {
@@ -22,14 +23,17 @@ const LoginPage = () => {
             setMessage({ title: 'Login Failed!', text: error, type: 'error' });
             setTimeout(() => setMessage(null), 5000);
         }
-        
-        if (status === 'success' && user) {
+        const userId = localStorage.getItem("userId");
+        if (status === 'success' && user && userId && !hasRedirected) {
+            setHasRedirected(true);
             setMessage({ title: 'Welcome Back!', text: `Login Successful, ${user.username}`, type: 'success' });
             const role = localStorage.getItem("userRole");
             if( role === "RENTER"){
                 nav("/cars/list")
             }else if(role === "OWNER"){
                 nav("/about")
+            }else{
+                nav("/")
             }
             setTimeout(() => {
             }, 2000);
