@@ -4,11 +4,12 @@ import { addCar, updateCar, fetchCars } from "../services/Api.js";
 import { useNavigate, useParams } from "react-router-dom";
 
 export default function CarForm() {
+  const userId = localStorage.getItem("userId") ;
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { id } = useParams();
-  const car = useSelector((state) => state.car.list.find((c) => c.id === Number(id)));
-  const userId = localStorage.getItem("userId") || 1;
+  const car = useSelector((state) => state.car.list.find((c) => c.id === Number(id) && c.userId === Number(userId)));
   const [form, setForm] = useState({
     model: "",
     plateNumber: "",
@@ -31,8 +32,8 @@ export default function CarForm() {
       if (car.img2) oldImages.push({ data: car.img2, index: 2 });
       if (car.img3) oldImages.push({ data: car.img3, index: 3 });
       setExistingImages(oldImages);
-    } else {
-      dispatch(fetchCars());
+    } else if(id){
+      navigate("/cars/edit-car")
     }
   }, [id, car, dispatch]);
 

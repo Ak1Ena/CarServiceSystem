@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { fetchReceiptsByUserId } from '../services/Api.jsx'; 
+import { useParams, useNavigate } from 'react-router-dom';
+import { fetchReceiptsByUserId } from '../services/Api.jsx';
 
 const ReceiptComponent = ({ receiptData }) => {
     const { receipt = {}, reserve = {}, user: customerName = '', owner: ownerName = 'Normaaaaa', car = {} } = receiptData;
@@ -111,16 +111,10 @@ const ReceiptComponent = ({ receiptData }) => {
 const ReceiptPage = () => {
 
     const dispatch = useDispatch();
+    const nav = useNavigate();
     const { data, status, error } = useSelector((state) => state.receipt);
     const { receiptId } = useParams();
-    const userIdToFetch = 'someUserId';
     const receiptIdToFind = receiptId;
-
-    useEffect(() => {
-        if (userIdToFetch && status !== 'loading') {
-            // dispatch(fetchReceiptsByUserId(userIdToFetch));
-        }
-    }, [dispatch, userIdToFetch]);
 
     const displayReceipt = useMemo(() => {
         if (!data || data.length === 0 || !receiptIdToFind) return null;
@@ -137,10 +131,22 @@ const ReceiptPage = () => {
         </div>;
     }
 
-    if (!displayReceipt) {
-        return <div className="flex justify-center items-center h-screen bg-gray-100">ไม่พบข้อมูลใบเสร็จรหัส: {receiptIdToFind}</div>;
-    }
-
+    useEffect(() => {
+        if (!displayReceipt) {
+            const timer = setTimeout(() => {
+                nav("/receipts");
+            }, 3000); // 3 วินาที
+            return () => clearTimeout(timer);
+        }
+    }, [displayReceipt, nav]);
+      if (!displayReceipt) {
+            return (
+            <div className="flex justify-center items-center h-screen bg-gray-100 text-gray-600 flex-col">
+                <p>ไม่พบใบเสร็จที่ต้องการ (ID: {receiptIdToFind})</p>
+                <p>กำลังพากลับหน้ารายการใบเสร็จ...</p>
+            </div>
+            );
+        }
     return (
         <div className="flex justify-center items-start min-h-screen bg-gray-100 py-10">
             <ReceiptComponent receiptData={displayReceipt} />

@@ -16,7 +16,7 @@ export default function CarDetail() {
   const [message, setMessage] = useState("");
   const [selectedImage, setSelectedImage] = useState(0);
 
-  const { success, loading: reserveLoading, error: reserveError } = useSelector((state) => state.car);
+  const { list, loading: reserveLoading, error: reserveError } = useSelector((state) => state.car);
 
   useEffect(() => {
     const loadCar = async () => {
