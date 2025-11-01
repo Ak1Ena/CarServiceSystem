@@ -13,7 +13,7 @@ export default function AppRoutes() {
     const role = localStorage.getItem("userRole");
     const ProtectedRoute = ({ allowRoles, element }) => {
         if (!role) {
-            return <Navigate to="/" replace />;
+            return <Navigate to="/login" replace />;
         }
 
         if (allowRoles.includes(role)) return element;
@@ -21,6 +21,8 @@ export default function AppRoutes() {
     return (
         <Routes>
             <Route path="/" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage />} />
+
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/cars/*" element={<ProtectedRoute allowRoles={["RENTER", "OWNER"]} element={<CarRoutes />} />} />
             <Route path="/payments/*" element={<ProtectedRoute allowRoles={["OWNER"]} element={<PaymentRoutes />} />} />
